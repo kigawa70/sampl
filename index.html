@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>新潟に眠る「消えたアーカイブ」</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>新潟に眠る「消えたアーカイブ」</h1>
+      <p class="subtitle">― 現代・新潟市を舞台にした連作ミステリ ―</p>
+    </header>
+
+    <section class="world">
+      <h2>世界観</h2>
+      <p>
+        舞台は現代の新潟市。<br>
+        海、川、山、雪、港町、夜景——四季と土地の記憶が事件を生む街。
+      </p>
+      <p>
+        あなたは<strong>新潟県警の新人アナリスト</strong>。<br>
+        新潟出身のフリー記者<strong>雪村ユイ</strong>と共に、
+        市内で起こる不可解な事件を分析・推理していく。
+      </p>
+      <p class="hint">
+        ※各話をクリアすると、次の事件が解放されます。
+      </p>
+    </section>
+
+    <section class="episodes">
+      <h2>事件一覧</h2>
+      <ul class="episode-list">
+        <li class="episode unlocked" data-ep="1">
+          <h3>第1話：白砂のネックレス</h3>
+          <p>関屋浜近くの民宿で起きた密室消失事件</p>
+          <button onclick="location.href='episode1.html'">開始</button>
+        </li>
+        <li class="episode locked" data-ep="2">
+          <h3>第2話：夜の校舎は雪を隠す</h3>
+          <p>※未解放</p>
+          <button disabled>LOCKED</button>
+        </li>
+        <li class="episode locked" data-ep="3">
+          <h3>第3話：闇市クロニクル</h3>
+          <p>※未解放</p>
+          <button disabled>LOCKED</button>
+        </li>
+        <li class="episode locked" data-ep="4">
+          <h3>第4話：雪に消えた記憶</h3>
+          <p>※未解放</p>
+          <button disabled>LOCKED</button>
+        </li>
+        <li class="episode locked" data-ep="5">
+          <h3>最終話：真実は雪線の果てに</h3>
+          <p>※未解放</p>
+          <button disabled>LOCKED</button>
+        </li>
+      </ul>
+    </section>
+
+    <footer class="footer">
+      <small>© Niigata Mystery Project</small>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

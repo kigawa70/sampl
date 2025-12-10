@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>第1話：白砂のネックレス</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="container">
+  <header class="header">
+    <h1>第1話：白砂のネックレス</h1>
+    <p class="subtitle">舞台：新潟市・関屋浜近くの民宿</p>
+  </header>
+
+  <div class="game-layout">
+  <section class="stage">
+    <div id="text" class="narration"></div>
+    <div id="choices" class="choices"></div>
+    </section>
+
+  <aside class="sidebar">
+    <h3>集めた情報</h3>
+    <div id="sidebar-evidence" class="evidence"></div>
+  </aside>
+</div>
+
+  <footer class="footer">
+    <button id="backBtn">話数選択へ戻る</button>
+  </footer>
+</div>
+
+<script>
+const textEl = document.getElementById('text');
+const choicesEl = document.getElementById('choices');
+// 取得するIDをサイドバーのものに変更
+const evidenceEl = document.getElementById('sidebar-evidence'); 
+const backBtn = document.getElementById('backBtn');
+
+const saveKey = 'niigata_progress';
+
+// 調査フラグ
+const flags = {
+  sand: false,
+  wind: false,
+  owner: false
+};
+
+// ===== 証拠表示（右側のみ）=====
+function renderEvidence() {
+  const list = [];
+  if (flags.sand) list.push('・部屋の砂の付き方');
+  if (flags.wind) list.push('・海風の流れる方向');
+  if (flags.owner) list.push('・民宿オーナーの証言の矛盾');
+
+  evidenceEl.innerHTML = list.length
+    ? list.join('<br>')
+    : '（まだ情報は集まっていない）';
+}
+
+// ===== シーン切り替え =====
+function setScene(text, choices = []) {
+  textEl.innerHTML = text;
+  choicesEl.innerHTML = '';
+
+  choices.forEach(c => {
+    const btn = document.createElement('button');
+    btn.textContent = c.label;
+    btn.onclick = c.onClick;
+    choicesEl.appendChild(btn);
+  });
+}
+
+// ===== ゲーム進行 =====
+function start() {
+  setScene(
+    '観光客の女性から通報が入った。<br>' +
+    '「大切なネックレスが、施錠された部屋から消えたんです」',
+    [
+      { label: '部屋を調べる', onClick: inspectRoom },
+      { label: '民宿オーナーに話を聞く', onClick: talkOwner }
+    ]
+  );
+}
+
+function inspectRoom() {
+  flags.sand = true;
+  renderEvidence();
+
+  setScene(
+    '畳の縁に、わずかな白砂が残っている。<br>' +
+    '外部から侵入したにしては不自然だ。',
+    [
+      { label: '海の様子を確認する', onClick: checkWind },
+      { label: '民宿オーナーに話を聞く', onClick: talkOwner }
+    ]
+  );
+}
+
+function checkWind() {
+  flags.wind = true;
+  renderEvidence();
+
+  setScene(
+    '窓を開けると、海からの風が室内へと吹き込む。<br>' +
+    '砂は「外から入った」のではない……？',
+    [
+      { label: '民宿オーナーに話を聞く', onClick: talkOwner },
+      { label: '推理する', onClick: deduce }
+    ]
+  );
+}
+
+function talkOwner() {
+  flags.owner = true;
+  renderEvidence();
+
+  setScene(
+    'オーナーの証言は落ち着いているが、<br>' +
+    '先ほど聞いた話と微妙に食い違っている。',
+    [
+      { label: '部屋を調べる', onClick: inspectRoom },
+      { label: '推理する', onClick: deduce }
+    ]
+  );
+}
+
+function deduce() {
+  if (!flags.sand || !flags.wind || !flags.owner) {
+    setScene(
+      'まだ情報が揃っていない。<br>' +
+      '密室トリックを崩すには材料が足りない。',
+      [{ label: '調査を続ける', onClick: start }]
+    );
+    return;
+  }
+
+  setScene(
+    '砂、風向き、証言——すべてが揃った。<br><br>' +
+    'これは盗難ではない。<br>' +
+    '海難事故のショックで、彼女自身がネックレスを隠したのだ。<br><br>' +
+    '「新潟に来た理由は……ある人物の調査資料を探すためでした」<br>' +
+    '——“失われたアーカイブ”。',
+    [{ label: '事件を終える', onClick: clearEpisode }]
+  );
+}
+
+function clearEpisode() {
+  const progress = JSON.parse(localStorage.getItem(saveKey)) || { unlockedEpisodes: 1 };
+  progress.unlockedEpisodes = Math.max(progress.unlockedEpisodes, 2);
+  localStorage.setItem(saveKey, JSON.stringify(progress));
+
+  setScene(
+    '<strong>第1話 クリア</strong>',
+    [{ label: '話数選択へ戻る', onClick: () => location.href = 'index.html' }]
+  );
+}
+
+backBtn.onclick = () => location.href = 'index.html';
+
+renderEvidence();
+start();
+</script>
+</body>
+</html>
