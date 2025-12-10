@@ -1,0 +1,104 @@
+body {
+  margin: 0;
+  font-family: "Noto Sans JP", system-ui, sans-serif;
+  background: linear-gradient(180deg, #071028, #0b1b2b);
+  color: #e5e7eb;
+}
+
+.game {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+.subtitle {
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.main {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.stage {
+  background: rgba(255,255,255,0.05);
+  border-radius: 12px;
+  padding: 16px;
+  min-height: 360px;
+}
+
+.narration {
+  line-height: 1.7;
+}
+
+.choices {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.choices button {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: transparent;
+  color: #e5e7eb;
+  cursor: pointer;
+}
+
+.choices button:hover {
+  border-color: #22d3ee;
+}
+
+.sidebar {
+  background: #f8fafc;
+  color: #0f172a;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.sidebar h2 {
+  font-size: 1rem;
+  margin-top: 0;
+}
+
+.log {
+  background: #e5e7eb;
+  border-radius: 8px;
+  padding: 8px;
+  height: 160px;
+  overflow-y: auto;
+  font-size: 0.85rem;
+}
+
+.footer {
+  margin-top: 12px;
+  display: flex;
+  gap: 8px;
+}
+
+.footer button {
+  flex: 1;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(90deg, #22d3ee, #10b981);
+  color: #022c22;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+@media (max-width: 900px) {
+  .main {
+    grid-template-columns: 1fr;
+  }
+}
