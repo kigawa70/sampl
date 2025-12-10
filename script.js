@@ -1,114 +1,267 @@
-const narrationEl = document.getElementById("narration");
-const choicesEl = document.getElementById("choices");
-const logEl = document.getElementById("log");
+const textEl = document.getElementById('text');
+const choicesEl = document.getElementById('choices');
+const imageEl = document.getElementById('sceneImage');
+const evidenceEl = document.getElementById('evidence');
+const yuiTextEl = document.getElementById('yuiText');
+const conclusionArea = document.getElementById('conclusionArea');
+const conclusionBtn = document.getElementById('conclusionBtn');
 
-const state = {
-  step: "start",
-  clues: new Set(),
-};
 
-function log(text) {
-  const time = new Date().toLocaleTimeString();
-  logEl.innerHTML = `<div>[${time}] ${text}</div>` + logEl.innerHTML;
+let evidence = [];
+
+function yuiSay(text) {
+  yuiTextEl.textContent = text;
 }
 
-function setScene(text, choices = []) {
-  narrationEl.innerHTML = text;
-  choicesEl.innerHTML = "";
+function addEvidence(text) {
+  if (!evidence.includes(text)) {
+    evidence.push(text);
+    renderEvidence();
+  }
+}
+
+function renderEvidence() {
+  evidenceEl.innerHTML = evidence.map(e => `・${e}`).join('<br>');
+}
+
+function setScene(text, choices = [], image = null, hotspots = []) {
+  textEl.innerHTML = text;
+  choicesEl.innerHTML = '';
+  imageEl.innerHTML = '';
+  imageEl.className = '';
+
+  if (image) {
+    imageEl.classList.add('scene-image');
+
+    const img = document.createElement('img');
+    img.src = image;
+    imageEl.appendChild(img);
+
+    hotspots.forEach(h => {
+      const btn = document.createElement('button');
+      btn.className = 'hotspot';
+      btn.style.left = h.x;
+      btn.style.top = h.y;
+      btn.style.width = h.w;
+      btn.style.height = h.h;
+      btn.title = h.label;
+      btn.onclick = h.onClick;
+      imageEl.appendChild(btn);
+    });
+  }
 
   choices.forEach(c => {
-    const btn = document.createElement("button");
+    const btn = document.createElement('button');
     btn.textContent = c.label;
     btn.onclick = c.onClick;
     choicesEl.appendChild(btn);
   });
 }
 
-function start() {
+/* ===== シーン定義 ===== */
+
+function startEpisode() {
+  yuiSay('通報が入ったみたい。');
+
   setScene(
-    "あなたは新潟県警の新人アナリスト。助手の雪村ユイと共に、関屋浜近くの民宿へ向かった。<br>" +
-    "観光客の女性が『密室でネックレスが消えた』と通報してきたのだ。",
+    '観光客の女性から通報が入った。<br>' +
+    '「大切なネックレスが、施錠された部屋から消えたんです」',
     [
-      { label: "部屋を調べる", onClick: inspectRoom },
-      { label: "オーナーに聞く", onClick: talkOwner }
+      { label: '現場へ向かう', onClick: showInn }
     ]
   );
-  log("現場到着");
+}
+
+function showInn() {
+  yuiSay('ここが民宿だね。部屋はあそこかな。');
+
+  setScene(
+    '新潟市・関屋浜近くの民宿。',
+    [],
+    'img/1話昼.png',
+    [
+      {
+        label: '客室に入る',
+        x: '60%',
+        y: '40%',
+        w: '40%',
+        h: '24%',
+        onClick: inspectRoom
+      }
+
+    ]
+  );
 }
 
 function inspectRoom() {
-  state.clues.add("sand");
+  yuiSay('畳の部屋……窓の外はすぐ海だね。');
+
   setScene(
-    "部屋の入口付近の畳に、白い砂が薄く付着している。<br>" +
-    "窓は内側から施錠され、外に足跡は見当たらない。",
+    '施錠された客室。<br>ネックレスはどこへ消えたのか。',
+    [],
+    'img/1話客室.png',
     [
-      { label: "砂を調べる", onClick: inspectSand },
-      { label: "推理する", onClick: deduce }
+      {
+        label: '床を調べる',
+        x: '0%',
+        y: '70%',
+        w: '100%',
+        h: '30%',
+        onClick: inspectFloor
+      }
     ]
   );
-  log("部屋を調査。白砂を確認");
 }
 
-function inspectSand() {
-  state.clues.add("wind");
+function inspectFloor() {
+  addEvidence('床に残った不自然な砂');
+  yuiSay('風向きと逆……これは自然じゃない。');
+
   setScene(
-    "砂は関屋浜特有の白砂だが、量が不自然に少ない。<br>" +
-    "海風は海側から室内へ吹き込んでいる。",
+    '床の隅に、乾いた白砂が集まっている。<br>' +
+    'まるで、誰かがここで何かを落としたかのようだ。',
+    [],
+    'img/1話客室.png',
     [
-      { label: "聞き取りを続ける", onClick: talkGuest },
-      { label: "推理する", onClick: deduce }
+      {
+        label: '戻る',
+        x: '0%',
+        y: '0%',
+        w: '100%',
+        h: '100%',
+        onClick: showInn2
+      }
     ]
   );
-  log("砂と風向きを確認");
 }
 
-function talkOwner() {
-  state.clues.add("owner");
+function showInn2() {
+  yuiSay('ここが民宿だね。部屋はあそこかな。');
+
   setScene(
-    "オーナーは『誰も入っていない』と主張するが、鍵の扱いについて曖昧な点がある。",
+    '新潟市・関屋浜近くの民宿。',
+    [],
+    'img/1話昼.png',
     [
-      { label: "部屋に戻る", onClick: inspectRoom }
+      {
+        label: '海を見る',
+        x: '20%',
+        y: '38%',
+        w: '16%',
+        h: '24%',
+        onClick: inspectVeranda
+      }
+
     ]
   );
-  log("オーナーの証言に矛盾");
 }
 
-function talkGuest() {
+
+function inspectVeranda() {
+  addEvidence('海風と逆方向に残る砂');
+
+  yuiSay('風は海から陸に吹いてる……なのに砂は逆。');
+
   setScene(
-    "被害者の女性は動揺している。<br>" +
-    "『私は盗まれたんじゃない…』と、かすかに呟いた。",
+    'ベランダに出ると、強い海風が吹き抜ける。<br>' +
+    '砂の流れは、室内のものと一致しない。',
+    [],
+    'img/1話ベランダ.png',
     [
-      { label: "推理する", onClick: deduce }
+      {
+        label: '戻る',
+        x: '0%',
+        y: '0%',
+        w: '100%',
+        h: '100%',
+        onClick: showInn3
+      }
     ]
   );
-  log("被害者の反応に違和感");
 }
 
-function deduce() {
-  if (state.clues.has("sand") && state.clues.has("wind")) {
+function showInn3() {
+  yuiSay('ここが民宿だね。部屋はあそこかな。');
+
+  setScene(
+    '新潟市・関屋浜近くの民宿。',
+    [],
+    'img/1話昼.png'
+  );
+  conclusionArea.style.display = 'block';
+}
+
+conclusionBtn.onclick = () => {
+  yuiSay('どの証拠が決め手だった？');
+
+  setScene(
+    '密室は、本当に成立していたのか？',
+    [
+      { label: '床の砂', onClick: () => showEnding(true) },
+      { label: '海風の向き', onClick: () => showEnding(false) },
+      { label: '関係ない', onClick: () => showEnding(false) }
+    ]
+  );
+};
+
+function showEnding(isCorrect) {
+  if (isCorrect) {
+    // ✅ 正解：第1話終了
+    yuiSay('そう……あの砂が決定的だった。');
+
     setScene(
-      "あなたは結論に至った。<br>" +
-      "ネックレスは外部から盗まれたのではない。<br>" +
-      "海難事故のショックで、彼女自身が隠してしまったのだ。<br><br>" +
-      "そして彼女の目的は、<strong>『ある調査資料（アーカイブ）』</strong>を探すことだった。",
-      [
-        { label: "第1話 終", onClick: () => location.reload() }
-      ]
+      '床に残った砂は、自然に入り込んだものではなかった。<br>' +
+      '密室は最初から成立していなかったのだ。<br><br>' +
+      '女性は、事故のショックでネックレスを隠していたことを認めた。',
+      []
     );
-    log("事件の真相に到達");
+
+    conclusionArea.style.display = 'none';
+
+    // 🏆 第2話をアンロックする処理を追加
+    const saveKey = 'niigata_progress';
+    const progress = JSON.parse(localStorage.getItem(saveKey)) || { unlockedEpisodes: 1 };
+    
+    // 現在のアンロック数が1なら、2に更新する
+    if (progress.unlockedEpisodes < 2) {
+      progress.unlockedEpisodes = 2;
+      localStorage.setItem(saveKey, JSON.stringify(progress));
+    }
+    // ------------------------------------
+
+    setTimeout(() => {
+      yuiSay('この事件は、まだ序章にすぎない。');
+
+      setScene(
+        '第1話「白砂のネックレス」 完<br><br>' +
+        '彼女が新潟に来た本当の目的――<br>' +
+        'それは「失われたアーカイブ」を探すことだった。',
+        [
+          {
+            label: '話数選択へ戻る',
+            onClick: () => {
+              window.location.href = 'index.html';
+           }
+          }
+        ]
+      );
+    }, 1500);
+
   } else {
+    // ❌ 不正解：進まない
+    yuiSay('……それだけじゃ、決め手にはならないかな。');
+
     setScene(
-      "まだ情報が足りない。もう少し調査が必要だ。",
+      'その証拠だけでは、密室を崩すには不十分だ。',
       [
-        { label: "部屋を調べる", onClick: inspectRoom }
+        {
+          label: 'もう一度考える',
+          onClick: showInn3
+        }
       ]
     );
   }
 }
 
-// フッターボタン（簡易ショートカット）
-document.getElementById("observeBtn").onclick = inspectRoom;
-document.getElementById("talkBtn").onclick = talkOwner;
-document.getElementById("deduceBtn").onclick = deduce;
-
-start();
+/* ===== 開始 ===== */
+startEpisode();

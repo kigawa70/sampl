@@ -6,7 +6,7 @@ body {
 }
 
 .container {
-  max-width: 900px;
+  max-width: 1100px;
   margin: 0 auto;
   padding: 24px;
 }
@@ -21,82 +21,22 @@ body {
   color: #94a3b8;
 }
 
-.world {
-  margin-top: 24px;
-  background: rgba(255,255,255,0.05);
-  padding: 16px 20px;
-  border-radius: 12px;
-}
-
-.world h2 {
-  margin-top: 0;
-}
-
-.world p {
-  line-height: 1.8;
-}
-
-.hint {
-  margin-top: 8px;
-  font-size: 0.85rem;
-  color: #a5b4fc;
-}
-
-.episodes {
-  margin-top: 32px;
-}
-
-.episode-list {
-  list-style: none;
-  padding: 0;
+/* ===== レイアウト ===== */
+.game-layout {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 16px;
-}
-
-.episode {
-  background: rgba(255,255,255,0.06);
-  border-radius: 12px;
-  padding: 16px;
-}
-
-.episode h3 {
-  margin-top: 0;
-  font-size: 1.05rem;
-}
-
-.episode p {
-  font-size: 0.9rem;
-  color: #cbd5f5;
-}
-
-.episode button {
-  margin-top: 8px;
-  width: 100%;
-  padding: 10px;
-  border-radius: 8px;
-  border: none;
-  font-weight: 600;
-}
-
-.episode.unlocked button {
-  background: linear-gradient(90deg, #22d3ee, #10b981);
-  color: #022c22;
-  cursor: pointer;
-}
-
-.episode.locked {
-  opacity: 0.55;
-}
-
-.episode.locked button {
-  background: #334155;
-  color: #94a3b8;
-}
-
-/* ===== 第1話用 ===== */
-.stage {
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
   margin-top: 24px;
+}
+
+@media (max-width: 800px) {
+  .game-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== メイン ===== */
+.stage {
   background: rgba(255,255,255,0.05);
   padding: 20px;
   border-radius: 12px;
@@ -104,7 +44,6 @@ body {
 
 .narration {
   line-height: 1.9;
-  font-size: 1rem;
 }
 
 .choices {
@@ -114,80 +53,129 @@ body {
   flex-wrap: wrap;
 }
 
-.choices button,
-.footer button {
+.choices button {
   padding: 10px 16px;
   border-radius: 8px;
   border: none;
-  font-weight: 600;
   cursor: pointer;
+  font-weight: 600;
   background: linear-gradient(90deg, #38bdf8, #34d399);
   color: #022c22;
 }
 
+/* ===== シーン画像 ===== */
+.scene-image {
+  position: relative;
+  margin-top: 16px;
+}
+
+.scene-image img {
+  width: 100%;
+  border-radius: 12px;
+  display: block;
+}
+
+/* 透明ボタン（ホットスポット） */
+.hotspot {
+  position: absolute;
+  background: rgba(255,255,255,0.15);
+  border: 2px solid rgba(255,255,255,0.4);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.hotspot:hover {
+  background: rgba(255,255,255,0.25);
+  box-shadow: 0 0 12px rgba(255,255,255,0.6);
+}
+
+/* ===== サイドバー ===== */
+.sidebar {
+  background: rgba(255,255,255,0.06);
+  border-radius: 12px;
+  padding: 16px;
+  position: sticky;
+  top: 16px;
+  height: fit-content;
+}
+
+.sidebar h3 {
+  margin-top: 0;
+  color: #a5b4fc;
+}
+
+.yui {
+  margin-bottom: 16px;
+  font-size: 0.9rem;
+}
+
+.evidence {
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+/* ===== フッター ===== */
 .footer {
   margin-top: 40px;
   text-align: center;
   color: #64748b;
 }
 
-/* デスクトップ用レイアウト */
-.game-layout {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 24px; /* グリッドアイテム間に間隔を追加 */
+.conclusion-area {
+  margin-top: 16px;
+  display: none; /* 初期は非表示 */
 }
 
-.sidebar {
-  position: sticky;
-  top: 16px;
+.conclusion-area button {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  background: linear-gradient(90deg, #facc15, #fb7185);
+  color: #3f1d0b;
 }
 
-/* サイドバーの見出しのスタイル */
-.sidebar h3 {
-    margin-top: 24px; /* 上部との間隔を調整 */
-    font-size: 1.2rem;
-    color: #a5b4fc; /* 見出しを強調 */
-    border-bottom: 2px solid rgba(165, 180, 252, 0.3);
-    padding-bottom: 5px;
+/* ==================================== */
+/* 🔑 ロックされている話数用のスタイル */
+/* ==================================== */
+
+.episode-btn.locked {
+  /* 背景をグレーアウトし、進捗カラーを消す */
+  background: #334155; /* Slate-600 */
+  color: #94a3b8; /* Slate-400 */
+  cursor: not-allowed;
+  position: relative;
+  overflow: hidden; /* 疑似要素を内側に閉じ込める */
+  pointer-events: none; /* クリックイベントを完全に無効化 */
 }
 
-/* 集めた情報（証拠）表示エリアのスタイルを追加 */
-.evidence {
-  /* .stage と似たデザインを適用 */
-  background: rgba(255, 255, 255, 0.08); /* ステージより少し濃い背景 */
-  padding: 15px;
-  border-radius: 12px;
-  min-height: 100px; /* 証拠がないときも最低限のスペースを確保 */
-  line-height: 1.8;
-  font-size: 0.95rem;
-  color: #e2e8f0;
-  margin-top: 12px; /* h3との間隔 */
-  white-space: pre-wrap; /* 証拠リストの改行を保持 */
+.episode-btn.locked:hover {
+  /* ホバー時の変化をなくす */
+  background: #334155;
 }
 
+/* ロックアイコンまたは「LOCK」テキストの表示 */
+.episode-btn.locked::before {
+  content: '🔒'; /* ロックアイコン */
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* ボタンテキストの上に半透明の黒を重ねる */
+  background: rgba(0, 0, 0, 0.4); 
+  font-size: 1.5rem;
+  color: #ffc24d; /* 鍵の色 */
+  font-weight: bold;
+}
 
-/* モバイル用レイアウト（800px以下で1列に変更） */
-@media (max-width: 800px) {
-  .container {
-    padding: 16px;
-  }
-
-  .game-layout {
-    grid-template-columns: 1fr; /* 1列にする */
-    gap: 16px;
-  }
-
-  .sidebar {
-      position: relative; /* 固定を解除 */
-      top: 0;
-  }
-  
-  .stage {
-      margin-top: 0;
-  }
-
-  .sidebar h3 {
-      margin-top: 16px;
-  }
+/* ボタン内のテキストは少し薄くする */
+.episode-btn.locked {
+  opacity: 0.8;
 }

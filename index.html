@@ -1,70 +1,97 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>新潟に眠る「消えたアーカイブ」</title>
+  <meta charset="UTF-8" />
+  <title>消えたアーカイブ ― 新潟</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="container">
     <header class="header">
-      <h1>新潟に眠る「消えたアーカイブ」</h1>
-      <p class="subtitle">― 現代・新潟市を舞台にした連作ミステリ ―</p>
+      <h1>消えたアーカイブ</h1>
+      <div class="subtitle">― 新潟に眠る真実 ―</div>
     </header>
 
-    <section class="world">
-      <h2>世界観</h2>
-      <p>
+    <section class="stage">
+      <div class="narration">
         舞台は現代の新潟市。<br>
-        海、川、山、雪、港町、夜景——四季と土地の記憶が事件を生む街。
-      </p>
-      <p>
-        あなたは<strong>新潟県警の新人アナリスト</strong>。<br>
-        新潟出身のフリー記者<strong>雪村ユイ</strong>と共に、
-        市内で起こる不可解な事件を分析・推理していく。
-      </p>
-      <p class="hint">
-        ※各話をクリアすると、次の事件が解放されます。
-      </p>
+        海、川、山、雪——多様な風景の裏で、<br>
+        人知れず消えた「調査資料（アーカイブ）」が存在する。<br><br>
+
+        あなたは新潟県警の新人アナリスト。<br>
+        フリー記者・雪村ユイと共に、<br>
+        表向きは独立した事件の裏に潜む真実を追うことになる。
+      </div>
     </section>
 
-    <section class="episodes">
-      <h2>事件一覧</h2>
-      <ul class="episode-list">
-        <li class="episode unlocked" data-ep="1">
-          <h3>第1話：白砂のネックレス</h3>
-          <p>関屋浜近くの民宿で起きた密室消失事件</p>
-          <button onclick="location.href='episode1.html'">開始</button>
-        </li>
-        <li class="episode locked" data-ep="2">
-          <h3>第2話：夜の校舎は雪を隠す</h3>
-          <p>※未解放</p>
-          <button disabled>LOCKED</button>
-        </li>
-        <li class="episode locked" data-ep="3">
-          <h3>第3話：闇市クロニクル</h3>
-          <p>※未解放</p>
-          <button disabled>LOCKED</button>
-        </li>
-        <li class="episode locked" data-ep="4">
-          <h3>第4話：雪に消えた記憶</h3>
-          <p>※未解放</p>
-          <button disabled>LOCKED</button>
-        </li>
-        <li class="episode locked" data-ep="5">
-          <h3>最終話：真実は雪線の果てに</h3>
-          <p>※未解放</p>
-          <button disabled>LOCKED</button>
-        </li>
-      </ul>
+    <section class="stage">
+      <h2 style="margin-top:0;">話数選択</h2>
+
+      <div class="choices episode-list">
+        <button class="episode-btn" data-ep="1">
+          第1話 白砂のネックレス
+        </button>
+
+        <button class="episode-btn locked" data-ep="2" disabled>
+          第2話 夜の校舎は雪を隠す
+        </button>
+
+        <button class="episode-btn locked" data-ep="3" disabled>
+          第3話 闇市クロニクル
+        </button>
+
+        <button class="episode-btn locked" data-ep="4" disabled>
+          第4話 雪に消えた記憶
+        </button>
+
+        <button class="episode-btn locked" data-ep="5" disabled>
+          最終話 真実は雪線の果てに
+        </button>
+      </div>
     </section>
 
     <footer class="footer">
-      <small>© Niigata Mystery Project</small>
+      新潟県警・非公式調査記録
     </footer>
   </div>
 
-  <script src="script.js"></script>
+  <script>
+    const saveKey = 'niigata_progress';
+    // 進捗の読み込み
+    const progress = JSON.parse(localStorage.getItem(saveKey)) || { unlockedEpisodes: 1 };
+
+    document.querySelectorAll('.episode-btn').forEach(btn => {
+      const ep = Number(btn.dataset.ep);
+      const title = btn.textContent.trim(); // ボタンのテキストを取得（確認ダイアログに使用）
+
+      // アンロックされているかどうかのチェック（既存の機能）
+      if (ep <= progress.unlockedEpisodes) {
+        btn.disabled = false;
+        btn.classList.remove('locked');
+
+        // クリック時の処理を修正: 確認ダイアログを追加
+        btn.addEventListener('click', () => {
+          // 確認ダイアログを表示
+          const confirmed = confirm(`【${title}】を開始します。よろしいですか？`);
+
+          if (confirmed) {
+            // OKが押された場合のみ遷移
+            if (ep === 1) {
+              location.href = 'episode1.html';
+            }
+            // ★ epが2, 3, 4, 5の場合の遷移先も必要に応じてここに追加してください。
+            // else if (ep === 2) {
+            //   location.href = 'episode2.html'; 
+            // }
+            // ...
+
+          } else {
+            // キャンセルが押された場合は何もしない
+            console.log('開始をキャンセルしました');
+          }
+        });
+      }
+    });
+  </script>
 </body>
 </html>
