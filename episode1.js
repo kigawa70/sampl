@@ -13,6 +13,13 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app); // 先に定義しておく
+const textEl = document.getElementById('text');
+const choicesEl = document.getElementById('choices');
+const imageEl = document.getElementById('sceneImage');
+const evidenceEl = document.getElementById('evidence');
+const yuiTextEl = document.getElementById('yuiText');
+const conclusionArea = document.getElementById('conclusionArea');
+const conclusionBtn = document.getElementById('conclusionBtn');
 
 // 【重要】ログイン状態を監視する処理を追加
 onAuthStateChanged(auth, (user) => {
@@ -24,16 +31,6 @@ onAuthStateChanged(auth, (user) => {
     console.log("ログイン中:", user.email);
   }
 });
-
-
-const textEl = document.getElementById('text');
-const choicesEl = document.getElementById('choices');
-const imageEl = document.getElementById('sceneImage');
-const evidenceEl = document.getElementById('evidence');
-const yuiTextEl = document.getElementById('yuiText');
-const conclusionArea = document.getElementById('conclusionArea');
-const conclusionBtn = document.getElementById('conclusionBtn');
-
 
 let evidence = [];
 
