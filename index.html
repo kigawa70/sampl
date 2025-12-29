@@ -1,96 +1,109 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <title>消えたアーカイブ ― 新潟</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <title>ログイン - 消えたアーカイブ</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .auth-form { max-width: 400px; margin: 50px auto; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 12px; }
+    input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 4px; border: none; color: #000; }
+    .auth-buttons { display: flex; gap: 10px; }
+    button { cursor: pointer; padding: 10px; flex: 1; border-radius: 8px; border: none; font-weight: bold; }
+    #loginBtn { background: #38bdf8; color: #fff; }
+    #registerBtn { background: #34d399; color: #fff; }
+  </style>
 </head>
 <body>
   <div class="container">
-    <header class="header">
-      <h1>消えたアーカイブ</h1>
-      <div class="subtitle">― 新潟に眠る真実 ―</div>
-    </header>
-
-    <section class="stage">
-      <div class="narration">
-        舞台は現代の新潟市。<br>
-        海、川、山、雪——多様な風景の裏で、<br>
-        人知れず消えた「調査資料（アーカイブ）」が存在する。<br><br>
-
-        あなたは新潟県警の新人アナリスト。<br>
-        フリー記者・雪村ユイと共に、<br>
-        表向きは独立した事件の裏に潜む真実を追うことになる。
+    <div class="auth-form">
+      <h2>調査員ログイン</h2>
+      <input type="text" id="email" placeholder="ユーザーID (またはメールアドレス)">
+      <input type="password" id="password" placeholder="パスワード (半角英数字)">
+      <div class="auth-buttons">
+        <button id="loginBtn">ログイン</button>
+        <button id="registerBtn">新規登録</button>
       </div>
-    </section>
-
-    <section class="stage">
-      <h2 style="margin-top:0;">話数選択</h2>
-
-      <div class="choices episode-list">
-        <button class="episode-btn" data-ep="1">
-          第1話 白砂のネックレス
-        </button>
-
-        <button class="episode-btn locked" data-ep="2" disabled>
-          第2話 夜の校舎は雪を隠す
-        </button>
-
-        <button class="episode-btn locked" data-ep="3" disabled>
-          第3話 闇市クロニクル
-        </button>
-
-        <button class="episode-btn locked" data-ep="4" disabled>
-          第4話 雪に消えた記憶
-        </button>
-
-        <button class="episode-btn locked" data-ep="5" disabled>
-          最終話 真実は雪線の果てに
-        </button>
-      </div>
-    </section>
-
-    <footer class="footer">
-      新潟県警・非公式調査記録
-    </footer>
+      <p id="message" style="color: #fb7185; margin-top: 15px; font-size: 0.9rem; min-height: 1.2em;"></p>
+    </div>
   </div>
 
-  <script>
-    const saveKey = 'niigata_progress';
-    // 進捗の読み込み
-    const progress = JSON.parse(localStorage.getItem(saveKey)) || { unlockedEpisodes: 1 };
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
 
-    document.querySelectorAll('.episode-btn').forEach(btn => {
-      const ep = Number(btn.dataset.ep);
-      const title = btn.textContent.trim(); // ボタンのテキストを取得（確認ダイアログに使用）
+    // Firebaseコンソールで取得した設定値をここに入れる
+const firebaseConfig = {
+    apiKey: "AIzaSyAjSxFPJ0Ym8u4B0t1n8BQ52wFrfg8l-r8",
+    authDomain: "niigata-game.firebaseapp.com",
+    projectId: "niigata-game",
+    storageBucket: "niigata-game.firebasestorage.app",
+    messagingSenderId: "256281746306",
+    appId: "1:256281746306:web:bb3823e7e8f7f769870d9b",
+    measurementId: "G-JKCRVL23K0"
+  };
 
-      // アンロックされているかどうかのチェック（既存の機能）
-      if (ep <= progress.unlockedEpisodes) {
-        btn.disabled = false;
-        btn.classList.remove('locked');
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
 
-        // クリック時の処理を修正: 確認ダイアログを追加
-        btn.addEventListener('click', () => {
-          // 確認ダイアログを表示
-          const confirmed = confirm(`【${title}】を開始します。よろしいですか？`);
+    const emailEl = document.getElementById('email');
+    const passEl = document.getElementById('password');
+    const msgEl = document.getElementById('message');
 
-          if (confirmed) {
-            // OKが押された場合のみ遷移
-            if (ep === 1) {
-              location.href = 'episode1.html';
-            }
-            else if (ep === 2) {
-              location.href = 'episode2.html';
-            }
+    // パスワードバリデーション（半角英数字のみ）
+    const validatePass = (pass) => /^[a-zA-Z0-9]+$/.test(pass);
 
-
-          } else {
-            // キャンセルが押された場合は何もしない
-            console.log('開始をキャンセルしました');
-          }
-        });
+    // 入力チェック用関数
+    const validateInput = () => {
+      msgEl.textContent = ""; // メッセージをクリア
+      if (!emailEl.value || !passEl.value) {
+        msgEl.textContent = "IDとパスワードを入力してください";
+        return false;
       }
-    });
+      if (!validatePass(passEl.value)) {
+        msgEl.textContent = "パスワードは半角英数字のみです";
+        return false;
+      }
+      return true;
+    };
+
+    // IDをメール形式に補完する関数
+    const getFormattedEmail = (val) => {
+      return val.includes('@') ? val : `${val}@game.com`;
+    };
+
+    // 新規登録
+    document.getElementById('registerBtn').onclick = async () => {
+      if (!validateInput()) return;
+
+      const email = getFormattedEmail(emailEl.value);
+      try {
+        await createUserWithEmailAndPassword(auth, email, passEl.value);
+        location.href = 'select.html';
+      } catch (e) {
+        if (e.code === 'auth/email-already-in-use') {
+          msgEl.textContent = "このIDは既に使用されています";
+        } else {
+          msgEl.textContent = "登録エラー: " + e.message;
+        }
+      }
+    };
+
+    // ログイン
+    document.getElementById('loginBtn').onclick = async () => {
+      if (!validateInput()) return;
+
+      const email = getFormattedEmail(emailEl.value);
+      try {
+        // Firebaseの認証が終わるまで待機
+        await signInWithEmailAndPassword(auth, email, passEl.value);
+        // 成功した場合のみ移動
+        location.href = 'select.html';
+      } catch (e) {
+        // 失敗した場合はここで止まり、エラーを表示
+        msgEl.textContent = "IDまたはパスワードが正しくありません";
+        console.error("Login Error:", e.code);
+      }
+    };
   </script>
 </body>
 </html>

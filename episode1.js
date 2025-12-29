@@ -240,7 +240,7 @@ function showEnding(isCorrect) {
           {
             label: '話数選択へ戻る',
             onClick: () => {
-              window.location.href = 'index.html';
+              window.location.href = 'select.html';
            }
           }
         ]
