@@ -1,5 +1,5 @@
-// 【追加】Firebaseの設定と初期化
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js"; // 追加
 
 const firebaseConfig = {
     apiKey: "AIzaSyAjSxFPJ0Ym8u4B0t1n8BQ52wFrfg8l-r8",
@@ -11,8 +11,19 @@ const firebaseConfig = {
     measurementId: "G-JKCRVL23K0"
 };
 
-// Firebaseを初期化
-initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app); // 先に定義しておく
+
+// 【重要】ログイン状態を監視する処理を追加
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    // ログインしていない場合はログイン画面に戻す
+    alert("セッションが切れました。再度ログインしてください。");
+    window.location.href = 'index.html';
+  } else {
+    console.log("ログイン中:", user.email);
+  }
+});
 
 
 const textEl = document.getElementById('text');
