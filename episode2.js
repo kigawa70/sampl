@@ -133,9 +133,9 @@ function inspectInside() {
     [
       { label: '美術室へ', onClick: inspectArtRoom },
       { label: '職員室へ', onClick: inspectSchedule },
-      { label: '校庭へ戻る', onClick: startEpisode2 },
-      'img/2話校舎内.png'
-    ]
+      { label: '校庭へ戻る', onClick: startEpisode2 }
+    ],
+    'img/2話校舎内.png'
   );
 }
 
