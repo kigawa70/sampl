@@ -31,45 +31,77 @@
         <button class="episode-btn locked" data-ep="5" disabled>最終話 真実は雪線の果てに</button>
       </div>
     </section>
+
+    <footer class="footer">
+      新潟県警・非公式調査記録
+    </footer>
   </div>
 
   <script type="module">
+    // Firebase SDK の読み込み
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
     import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
-    const firebaseConfig = { /* あなたの設定を入れる */ };
+    // TODO: ご自身の Firebase 設定を貼り付けてください
+const firebaseConfig = {
+    apiKey: "AIzaSyAjSxFPJ0Ym8u4B0t1n8BQ52wFrfg8l-r8",
+    authDomain: "niigata-game.firebaseapp.com",
+    projectId: "niigata-game",
+    storageBucket: "niigata-game.firebasestorage.app",
+    messagingSenderId: "256281746306",
+    appId: "1:256281746306:web:bb3823e7e8f7f769870d9b",
+    measurementId: "G-JKCRVL23K0"
+  };
+
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // ログイン状態と進捗の確認
+    // ログイン状態を監視し、データを取得したらボタンを有効化する
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
-        location.href = 'index.html'; // 未ログインならログイン画面へ
+        // ログインしていない場合はログイン画面（index.html）へ
+        location.href = 'index.html';
         return;
       }
 
-      // Firestoreからデータを取得
-      const docRef = doc(db, "users", user.uid);
-      const docSnap = await getDoc(docRef);
-      let unlockedLevel = 1;
+      console.log("ログイン中:", user.email);
 
-      if (docSnap.exists()) {
-        unlockedLevel = docSnap.data().unlockedEpisodes || 1;
+      // Firestore から進捗を取得
+      let unlockedLevel = 1;
+      try {
+        const docRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          unlockedLevel = docSnap.data().unlockedEpisodes || 1;
+        }
+      } catch (e) {
+        console.error("進捗取得エラー:", e);
       }
 
-      // ボタンの更新
-      document.querySelectorAll('.episode-btn').forEach(btn => {
+      // 全てのボタンに対して状態を更新
+      const buttons = document.querySelectorAll('.episode-btn');
+      buttons.forEach(btn => {
         const ep = Number(btn.dataset.ep);
+        const title = btn.textContent.trim();
+
         if (ep <= unlockedLevel) {
+          // ロック解除
           btn.disabled = false;
           btn.classList.remove('locked');
+          
+          // イベントリスナーを確実に登録
           btn.onclick = () => {
-            if (confirm(`第${ep}話を開始しますか？`)) {
+            if (confirm(`【${title}】を開始します。よろしいですか？`)) {
               location.href = `episode${ep}.html`;
             }
           };
+        } else {
+          // ロック継続
+          btn.disabled = true;
+          btn.classList.add('locked');
+          btn.onclick = null;
         }
       });
     });

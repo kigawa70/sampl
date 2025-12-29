@@ -1,3 +1,20 @@
+// 【追加】Firebaseの設定と初期化
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyAjSxFPJ0Ym8u4B0t1n8BQ52wFrfg8l-r8",
+    authDomain: "niigata-game.firebaseapp.com",
+    projectId: "niigata-game",
+    storageBucket: "niigata-game.firebasestorage.app",
+    messagingSenderId: "256281746306",
+    appId: "1:256281746306:web:bb3823e7e8f7f769870d9b",
+    measurementId: "G-JKCRVL23K0"
+};
+
+// Firebaseを初期化
+initializeApp(firebaseConfig);
+
+
 const textEl = document.getElementById('text');
 const choicesEl = document.getElementById('choices');
 const imageEl = document.getElementById('sceneImage');
@@ -8,6 +25,30 @@ const conclusionBtn = document.getElementById('conclusionBtn');
 
 
 let evidence = [];
+
+async function saveProgressToFirebase(nextLevel) {
+  // 動的にFirebaseの機能をインポート（既存のHTML構造を壊さないため）
+  const { getFirestore, doc, setDoc } = await import("https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js");
+  const { getAuth } = await import("https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js");
+
+  const auth = getAuth();
+  const db = getFirestore();
+  const user = auth.currentUser;
+
+  if (user) {
+    try {
+      // データベースの users/ユーザーID の場所にある unlockedEpisodes を更新
+      await setDoc(doc(db, "users", user.uid), {
+        unlockedEpisodes: nextLevel
+      }, { merge: true });
+      console.log("データベースに保存しました。解放レベル:", nextLevel);
+    } catch (e) {
+      console.error("保存に失敗しました:", e);
+    }
+  } else {
+    console.error("ログインしていないため保存できませんでした。");
+  }
+}
 
 function yuiSay(text) {
   yuiTextEl.textContent = text;
@@ -204,25 +245,6 @@ conclusionBtn.onclick = () => {
   );
 };
 
-async function saveProgress(nextLevel) {
-  const { getFirestore, doc, setDoc } = await import("https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js");
-  const { getAuth } = await import("https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js");
-  
-  const auth = getAuth();
-  const db = getFirestore();
-  const user = auth.currentUser;
-
-  if (user) {
-    try {
-      await setDoc(doc(db, "users", user.uid), {
-        unlockedEpisodes: nextLevel
-      }, { merge: true });
-      console.log("進捗を保存しました");
-    } catch (e) {
-      console.error("保存失敗:", e);
-    }
-  }
-}
 
 function showEnding(isCorrect) {
   if (isCorrect) {
@@ -240,7 +262,7 @@ function showEnding(isCorrect) {
     
     conclusionArea.style.display = 'none';
 
-    saveProgress(2);
+    saveProgressToFirebase(2);
     
     setTimeout(() => {
       yuiSay('この事件は、まだ序章にすぎない。');
@@ -253,7 +275,7 @@ function showEnding(isCorrect) {
           {
             label: '話数選択へ戻る',
             onClick: () => {
-              window.location.href = '.html';
+              window.location.href = 'select.html';
            }
           }
         ]
