@@ -34,29 +34,12 @@ onAuthStateChanged(auth, (user) => {
 
 let evidence = [];
 
-async function saveProgressToFirebase(nextLevel) {
-  // 動的にFirebaseの機能をインポート（既存のHTML構造を壊さないため）
-  const { getFirestore, doc, setDoc } = await import("https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js");
-  const { getAuth } = await import("https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js");
+// 状態管理
+let yardChecked = false;
+let artChecked = false;
+let scheduleChecked = false;
 
-  const auth = getAuth();
-  const db = getFirestore();
-  const user = auth.currentUser;
-
-  if (user) {
-    try {
-      // データベースの users/ユーザーID の場所にある unlockedEpisodes を更新
-      await setDoc(doc(db, "users", user.uid), {
-        unlockedEpisodes: nextLevel
-      }, { merge: true });
-      console.log("データベースに保存しました。解放レベル:", nextLevel);
-    } catch (e) {
-      console.error("保存に失敗しました:", e);
-    }
-  } else {
-    console.error("ログインしていないため保存できませんでした。");
-  }
-}
+/* ===== 共通処理 ===== */
 
 function yuiSay(text) {
   yuiTextEl.textContent = text;
@@ -66,6 +49,7 @@ function addEvidence(text) {
   if (!evidence.includes(text)) {
     evidence.push(text);
     renderEvidence();
+    checkAllEvidence(); // 証拠が増えるたびにチェック
   }
 }
 
@@ -74,29 +58,19 @@ function renderEvidence() {
 }
 
 function setScene(text, choices = [], image = null, hotspots = []) {
+  conclusionArea.style.display = 'none';
+
   textEl.innerHTML = text;
   choicesEl.innerHTML = '';
   imageEl.innerHTML = '';
   imageEl.className = '';
 
   if (image) {
-    imageEl.classList.add('scene-image');
+    imageEl.className = 'scene-image';
 
     const img = document.createElement('img');
     img.src = image;
     imageEl.appendChild(img);
-
-    hotspots.forEach(h => {
-      const btn = document.createElement('button');
-      btn.className = 'hotspot';
-      btn.style.left = h.x;
-      btn.style.top = h.y;
-      btn.style.width = h.w;
-      btn.style.height = h.h;
-      btn.title = h.label;
-      btn.onclick = h.onClick;
-      imageEl.appendChild(btn);
-    });
   }
 
   choices.forEach(c => {
@@ -107,8 +81,8 @@ function setScene(text, choices = [], image = null, hotspots = []) {
   });
 }
 
+/* ===== シーン ===== */
 
-/* --- ゲーム展開 --- */
 function startEpisode2() {
   yuiSay('夜の校舎……何かが隠されている気がする。');
   setScene(
