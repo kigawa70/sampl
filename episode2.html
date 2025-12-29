@@ -1,42 +1,49 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>第2話 夜の校舎は雪を隠す</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <title>第1話 白砂のネックレス</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="container">
 
-    <header class="header">
-      <h1>第2話 夜の校舎は雪を隠す</h1>
-      <div class="subtitle">新潟市内・夜の高校</div>
-    </header>
+<div class="container">
+  <header class="header">
+    <h1>第2話 夜の後者は雪を隠す</h1>
+    <p class="subtitle">新潟市内・夜の高校</p>
+  </header>
 
-    <div class="game-layout">
+  <div class="game-layout">
+    <!-- メイン -->
+    <section class="stage">
+      <div id="text" class="narration"></div>
 
-      <section class="stage">
-        <div id="yuiText" class="narration"></div>
-        <div id="text" class="narration"></div>
+      <div id="sceneImage"></div>
 
-        <div id="sceneImage"></div>
+      <div id="choices" class="choices"></div>
+    </section>
 
-        <div id="choices" class="choices"></div>
-      </section>
+    <!-- サイドバー -->
+    <aside class="sidebar">
+      <div class="yui">
+        <h3>雪村ユイ</h3>
+        <p id="yuiText">現場に向こうか。</p>
+      </div>
 
-      <aside class="sidebar">
-        <h3>集めた情報</h3>
-        <div id="evidence" class="evidence"></div>
+      <h3>集めた情報</h3>
+      <div id="evidence" class="evidence"></div>
 
-        <div id="conclusionArea" class="conclusion-area">
-          <button id="conclusionBtn">結論を出す</button>
-        </div>
-      </aside>
-
-    </div>
-
+      <div id="conclusionArea" class="conclusion-area">
+        <button id="conclusionBtn">結論を出す</button>
+      </div>
+    </aside>
   </div>
 
-  <script type="module" src="episode2.js"></script>
+  <footer class="footer">
+    新潟県警 事件ファイル
+  </footer>
+</div>
+
+<script type="module" src="episode2.js"></script>
 </body>
 </html>
