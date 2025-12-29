@@ -17,79 +17,61 @@
         舞台は現代の新潟市。<br>
         海、川、山、雪——多様な風景の裏で、<br>
         人知れず消えた「調査資料（アーカイブ）」が存在する。<br><br>
-
-        あなたは新潟県警の新人アナリスト。<br>
-        フリー記者・雪村ユイと共に、<br>
-        表向きは独立した事件の裏に潜む真実を追うことになる。
+        あなたは新潟県警の新人アナリスト。
       </div>
     </section>
 
     <section class="stage">
       <h2 style="margin-top:0;">話数選択</h2>
-
       <div class="choices episode-list">
-        <button class="episode-btn" data-ep="1">
-          第1話 白砂のネックレス
-        </button>
-
-        <button class="episode-btn locked" data-ep="2" disabled>
-          第2話 夜の校舎は雪を隠す
-        </button>
-
-        <button class="episode-btn locked" data-ep="3" disabled>
-          第3話 闇市クロニクル
-        </button>
-
-        <button class="episode-btn locked" data-ep="4" disabled>
-          第4話 雪に消えた記憶
-        </button>
-
-        <button class="episode-btn locked" data-ep="5" disabled>
-          最終話 真実は雪線の果てに
-        </button>
+        <button class="episode-btn" data-ep="1">第1話 白砂のネックレス</button>
+        <button class="episode-btn locked" data-ep="2" disabled>第2話 夜の校舎は雪を隠す</button>
+        <button class="episode-btn locked" data-ep="3" disabled>第3話 闇市クロニクル</button>
+        <button class="episode-btn locked" data-ep="4" disabled>第4話 雪に消えた記憶</button>
+        <button class="episode-btn locked" data-ep="5" disabled>最終話 真実は雪線の果てに</button>
       </div>
     </section>
-
-    <footer class="footer">
-      新潟県警・非公式調査記録
-    </footer>
   </div>
 
-  <script>
-    const saveKey = 'niigata_progress';
-    // 進捗の読み込み
-    const progress = JSON.parse(localStorage.getItem(saveKey)) || { unlockedEpisodes: 1 };
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
-    document.querySelectorAll('.episode-btn').forEach(btn => {
-      const ep = Number(btn.dataset.ep);
-      const title = btn.textContent.trim(); // ボタンのテキストを取得（確認ダイアログに使用）
+    const firebaseConfig = { /* あなたの設定を入れる */ };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-      // アンロックされているかどうかのチェック（既存の機能）
-      if (ep <= progress.unlockedEpisodes) {
-        btn.disabled = false;
-        btn.classList.remove('locked');
-
-        // クリック時の処理を修正: 確認ダイアログを追加
-        btn.addEventListener('click', () => {
-          // 確認ダイアログを表示
-          const confirmed = confirm(`【${title}】を開始します。よろしいですか？`);
-
-          if (confirmed) {
-            // OKが押された場合のみ遷移
-            if (ep === 1) {
-              location.href = 'episode1.html';
-            }
-            else if (ep === 2) {
-              location.href = 'episode2.html';
-            }
-
-
-          } else {
-            // キャンセルが押された場合は何もしない
-            console.log('開始をキャンセルしました');
-          }
-        });
+    // ログイン状態と進捗の確認
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        location.href = 'index.html'; // 未ログインならログイン画面へ
+        return;
       }
+
+      // Firestoreからデータを取得
+      const docRef = doc(db, "users", user.uid);
+      const docSnap = await getDoc(docRef);
+      let unlockedLevel = 1;
+
+      if (docSnap.exists()) {
+        unlockedLevel = docSnap.data().unlockedEpisodes || 1;
+      }
+
+      // ボタンの更新
+      document.querySelectorAll('.episode-btn').forEach(btn => {
+        const ep = Number(btn.dataset.ep);
+        if (ep <= unlockedLevel) {
+          btn.disabled = false;
+          btn.classList.remove('locked');
+          btn.onclick = () => {
+            if (confirm(`第${ep}話を開始しますか？`)) {
+              location.href = `episode${ep}.html`;
+            }
+          };
+        }
+      });
     });
   </script>
 </body>

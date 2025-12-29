@@ -204,6 +204,26 @@ conclusionBtn.onclick = () => {
   );
 };
 
+async function saveProgress(nextLevel) {
+  const { getFirestore, doc, setDoc } = await import("https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js");
+  const { getAuth } = await import("https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js");
+  
+  const auth = getAuth();
+  const db = getFirestore();
+  const user = auth.currentUser;
+
+  if (user) {
+    try {
+      await setDoc(doc(db, "users", user.uid), {
+        unlockedEpisodes: nextLevel
+      }, { merge: true });
+      console.log("進捗を保存しました");
+    } catch (e) {
+      console.error("保存失敗:", e);
+    }
+  }
+}
+
 function showEnding(isCorrect) {
   if (isCorrect) {
     // ✅ 正解：第1話終了
@@ -216,19 +236,12 @@ function showEnding(isCorrect) {
       []
     );
 
+
+    
     conclusionArea.style.display = 'none';
 
-    // 🏆 第2話をアンロックする処理を追加
-    const saveKey = 'niigata_progress';
-    const progress = JSON.parse(localStorage.getItem(saveKey)) || { unlockedEpisodes: 1 };
+    saveProgress(2);
     
-    // 現在のアンロック数が1なら、2に更新する
-    if (progress.unlockedEpisodes < 2) {
-      progress.unlockedEpisodes = 2;
-      localStorage.setItem(saveKey, JSON.stringify(progress));
-    }
-    // ------------------------------------
-
     setTimeout(() => {
       yuiSay('この事件は、まだ序章にすぎない。');
 
@@ -240,7 +253,7 @@ function showEnding(isCorrect) {
           {
             label: '話数選択へ戻る',
             onClick: () => {
-              window.location.href = 'select.html';
+              window.location.href = '.html';
            }
           }
         ]
