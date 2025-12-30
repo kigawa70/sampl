@@ -81,9 +81,8 @@ function checkAllEvidence() {
 }
 
 function setScene(text, choices = [], image = null) {
-  // 結論ボタンは基本隠す(checkAllEvidenceで必要時のみ出す)
-  conclusionArea.style.display = 'none';
-  checkAllEvidence();
+// 結論ボタンを表示させるための判定を最初に入れる
+  checkAllEvidence(); 
 
   textEl.innerHTML = text;
   choicesEl.innerHTML = '';
@@ -93,6 +92,19 @@ function setScene(text, choices = [], image = null) {
     const img = document.createElement('img');
     img.src = image;
     imageEl.appendChild(img);
+
+    // ホットスポットの生成
+    hotspots.forEach(h => {
+      const btn = document.createElement('button');
+      btn.className = 'hotspot';
+      // ここで座標とサイズを適用
+      btn.style.left = h.x;
+      btn.style.top = h.y;
+      btn.style.width = h.w;
+      btn.style.height = h.h;
+      btn.onclick = h.onClick;
+      imageEl.appendChild(btn);
+    });
   }
 
   choices.forEach(c => {
