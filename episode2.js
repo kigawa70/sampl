@@ -1,6 +1,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js"; // 追加
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
+// --- 1. Firebase初期化設定 (1話と同様の構成) ---
 const firebaseConfig = {
     apiKey: "AIzaSyAjSxFPJ0Ym8u4B0t1n8BQ52wFrfg8l-r8",
     authDomain: "niigata-game.firebaseapp.com",
@@ -12,7 +14,9 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app); // 先に定義しておく
+const auth = getAuth(app);
+const db = getFirestore(app);
+
 const textEl = document.getElementById('text');
 const choicesEl = document.getElementById('choices');
 const imageEl = document.getElementById('sceneImage');
@@ -21,40 +25,33 @@ const yuiTextEl = document.getElementById('yuiText');
 const conclusionArea = document.getElementById('conclusionArea');
 const conclusionBtn = document.getElementById('conclusionBtn');
 
-// 【重要】ログイン状態を監視する処理を追加
+let evidence = [];
+let yardChecked = false;
+let artChecked = false;
+let scheduleChecked = false;
+
+// --- 2. ログイン状態の監視 (1話と同様の構成) ---
 onAuthStateChanged(auth, (user) => {
   if (!user) {
-    // ログインしていない場合はログイン画面に戻す
     alert("セッションが切れました。再度ログインしてください。");
     window.location.href = 'index.html';
   } else {
-    console.log("ログイン中:", user.email);
+    console.log("第2話 ログイン中:", user.email);
   }
 });
 
-let evidence = [];
-
+// --- 3. 進捗保存関数 (1話と同様の構成) ---
 async function saveProgressToFirebase(nextLevel) {
-  // 動的にFirebaseの機能をインポート（既存のHTML構造を壊さないため）
-  const { getFirestore, doc, setDoc } = await import("https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js");
-  const { getAuth } = await import("https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js");
-
-  const auth = getAuth();
-  const db = getFirestore();
   const user = auth.currentUser;
-
   if (user) {
     try {
-      // データベースの users/ユーザーID の場所にある unlockedEpisodes を更新
       await setDoc(doc(db, "users", user.uid), {
         unlockedEpisodes: nextLevel
       }, { merge: true });
       console.log("データベースに保存しました。解放レベル:", nextLevel);
     } catch (e) {
-      console.error("保存に失敗しました:", e);
+      console.error("保存失敗:", e);
     }
-  } else {
-    console.error("ログインしていないため保存できませんでした。");
   }
 }
 
@@ -67,7 +64,7 @@ function addEvidence(text) {
   if (!evidence.includes(text)) {
     evidence.push(text);
     renderEvidence();
-    checkAllEvidence(); // 証拠が揃ったか判定
+    checkAllEvidence(); // 証拠追加時にボタン出現チェック
   }
 }
 
@@ -75,26 +72,35 @@ function renderEvidence() {
   evidenceEl.innerHTML = evidence.map(e => `・${e}`).join('<br>');
 }
 
+// すべての調査が完了したかチェック
 function checkAllEvidence() {
-  // 全ての調査ポイントが完了したらボタンを表示
   if (yardChecked && artChecked && scheduleChecked) {
     conclusionArea.style.display = 'block';
   }
 }
 
-function setScene(text, choices = [], image = null) {
-  // 結論ボタンは基本隠す(checkAllEvidenceで必要時のみ出す)
-  conclusionArea.style.display = 'none';
-  checkAllEvidence();
-
+function setScene(text, choices = [], image = null, hotspots = []) {
   textEl.innerHTML = text;
   choicesEl.innerHTML = '';
   imageEl.innerHTML = '';
+  imageEl.className = '';
 
   if (image) {
+    imageEl.classList.add('scene-image');
     const img = document.createElement('img');
     img.src = image;
     imageEl.appendChild(img);
+
+    hotspots.forEach(h => {
+      const btn = document.createElement('button');
+      btn.className = 'hotspot';
+      btn.style.left = h.x;
+      btn.style.top = h.y;
+      btn.style.width = h.w;
+      btn.style.height = h.h;
+      btn.onclick = h.onClick;
+      imageEl.appendChild(btn);
+    });
   }
 
   choices.forEach(c => {
