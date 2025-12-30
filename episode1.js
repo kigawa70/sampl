@@ -1,6 +1,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js"; // 追加
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
+// Firebase設定
 const firebaseConfig = {
     apiKey: "AIzaSyAjSxFPJ0Ym8u4B0t1n8BQ52wFrfg8l-r8",
     authDomain: "niigata-game.firebaseapp.com",
@@ -11,8 +13,11 @@ const firebaseConfig = {
     measurementId: "G-JKCRVL23K0"
 };
 
+// 初期化
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app); // 先に定義しておく
+const auth = getAuth(app);
+const db = getFirestore(app);
+
 const textEl = document.getElementById('text');
 const choicesEl = document.getElementById('choices');
 const imageEl = document.getElementById('sceneImage');
@@ -21,29 +26,24 @@ const yuiTextEl = document.getElementById('yuiText');
 const conclusionArea = document.getElementById('conclusionArea');
 const conclusionBtn = document.getElementById('conclusionBtn');
 
-// 【重要】ログイン状態を監視する処理を追加
+let evidence = [];
+let kazeChecked = false;
+let sandChecked = false;
+
+// --- ログイン監視 ---
 onAuthStateChanged(auth, (user) => {
   if (!user) {
-    // ログインしていない場合はログイン画面に戻す
     alert("セッションが切れました。再度ログインしてください。");
     window.location.href = 'index.html';
   } else {
-    console.log("ログイン中:", user.email);
+    console.log("第2話 ログイン中:", user.email);
   }
 });
 
-let evidence = [];
-
+// --- 進捗保存 ---
 async function saveProgressToFirebase(nextLevel) {
-  // 動的にFirebaseの機能をインポート（既存のHTML構造を壊さないため）
-  const { getFirestore, doc, setDoc } = await import("https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js");
-  const { getAuth } = await import("https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js");
-
-  const auth = getAuth();
-  const db = getFirestore();
   const user = auth.currentUser;
-
-  if (user) {
+if (user) {
     const docRef = doc(db, "users", user.uid);
     
     try {
@@ -70,6 +70,7 @@ async function saveProgressToFirebase(nextLevel) {
   }
 }
 
+/* --- 共通関数 --- */
 function yuiSay(text) {
   yuiTextEl.textContent = text;
 }
@@ -94,6 +95,9 @@ function checkAllEvidence() {
 }
 
 function setScene(text, choices = [], image = null, hotspots = []) {
+  conclusionArea.style.display = 'none';
+  checkAllEvidence();
+
   textEl.innerHTML = text;
   choicesEl.innerHTML = '';
   imageEl.innerHTML = '';
