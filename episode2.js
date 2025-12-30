@@ -80,19 +80,33 @@ function checkAllEvidence() {
   }
 }
 
-function setScene(text, choices = [], image = null) {
-  // 結論ボタンは基本隠す(checkAllEvidenceで必要時のみ出す)
+function setScene(text, choices = [], image = null, hotspots = []) {
   conclusionArea.style.display = 'none';
   checkAllEvidence();
 
   textEl.innerHTML = text;
   choicesEl.innerHTML = '';
   imageEl.innerHTML = '';
+  imageEl.className = '';
 
   if (image) {
+    imageEl.classList.add('scene-image');
+
     const img = document.createElement('img');
     img.src = image;
     imageEl.appendChild(img);
+
+    hotspots.forEach(h => {
+      const btn = document.createElement('button');
+      btn.className = 'hotspot';
+      btn.style.left = h.x;
+      btn.style.top = h.y;
+      btn.style.width = h.w;
+      btn.style.height = h.h;
+      btn.title = h.label;
+      btn.onclick = h.onClick;
+      imageEl.appendChild(btn);
+    });
   }
 
   choices.forEach(c => {
@@ -102,6 +116,7 @@ function setScene(text, choices = [], image = null) {
     choicesEl.appendChild(btn);
   });
 }
+
 
 /* --- ストーリー展開 --- */
 function startEpisode2() {
