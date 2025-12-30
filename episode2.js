@@ -2,7 +2,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebas
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
 import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
-// --- 1. Firebase初期化設定 (1話と同様の構成) ---
+// Firebase設定
 const firebaseConfig = {
     apiKey: "AIzaSyAjSxFPJ0Ym8u4B0t1n8BQ52wFrfg8l-r8",
     authDomain: "niigata-game.firebaseapp.com",
@@ -13,6 +13,7 @@ const firebaseConfig = {
     measurementId: "G-JKCRVL23K0"
 };
 
+// 初期化
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -30,7 +31,7 @@ let yardChecked = false;
 let artChecked = false;
 let scheduleChecked = false;
 
-// --- 2. ログイン状態の監視 (1話と同様の構成) ---
+// --- ログイン監視 ---
 onAuthStateChanged(auth, (user) => {
   if (!user) {
     alert("セッションが切れました。再度ログインしてください。");
@@ -40,7 +41,7 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
-// --- 3. 進捗保存関数 (1話と同様の構成) ---
+// --- 進捗保存 ---
 async function saveProgressToFirebase(nextLevel) {
   const user = auth.currentUser;
   if (user) {
@@ -50,7 +51,7 @@ async function saveProgressToFirebase(nextLevel) {
       }, { merge: true });
       console.log("データベースに保存しました。解放レベル:", nextLevel);
     } catch (e) {
-      console.error("保存失敗:", e);
+      console.error("保存エラー:", e);
     }
   }
 }
@@ -64,7 +65,7 @@ function addEvidence(text) {
   if (!evidence.includes(text)) {
     evidence.push(text);
     renderEvidence();
-    checkAllEvidence(); // 証拠追加時にボタン出現チェック
+    checkAllEvidence(); // 証拠が揃ったか判定
   }
 }
 
@@ -72,35 +73,26 @@ function renderEvidence() {
   evidenceEl.innerHTML = evidence.map(e => `・${e}`).join('<br>');
 }
 
-// すべての調査が完了したかチェック
 function checkAllEvidence() {
+  // 全ての調査ポイントが完了したらボタンを表示
   if (yardChecked && artChecked && scheduleChecked) {
     conclusionArea.style.display = 'block';
   }
 }
 
-function setScene(text, choices = [], image = null, hotspots = []) {
+function setScene(text, choices = [], image = null) {
+  // 結論ボタンは基本隠す(checkAllEvidenceで必要時のみ出す)
+  conclusionArea.style.display = 'none';
+  checkAllEvidence();
+
   textEl.innerHTML = text;
   choicesEl.innerHTML = '';
   imageEl.innerHTML = '';
-  imageEl.className = '';
 
   if (image) {
-    imageEl.classList.add('scene-image');
     const img = document.createElement('img');
     img.src = image;
     imageEl.appendChild(img);
-
-    hotspots.forEach(h => {
-      const btn = document.createElement('button');
-      btn.className = 'hotspot';
-      btn.style.left = h.x;
-      btn.style.top = h.y;
-      btn.style.width = h.w;
-      btn.style.height = h.h;
-      btn.onclick = h.onClick;
-      imageEl.appendChild(btn);
-    });
   }
 
   choices.forEach(c => {
