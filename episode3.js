@@ -81,7 +81,11 @@ function startEpisode3() {
   yuiSay('潜入成功ね。ここが噂の骨董オークション会場……。');
   setScene(
     '古町の雑居ビルの地下。高級そうな椅子が並んでいるが、奥の部屋で殺人が起きたという。',
-    [{ label: '会場を調べる', onClick: inspectVenue }]
+    [],
+    'img/3話オークション会場.png',
+    [
+      { label: '会場を調べる',  x: '0%', y: '0%', w: '100%', h: '100%', onClick: inspectVenue }
+    ]
   );
 }
 
@@ -89,11 +93,11 @@ function inspectVenue() {
   setScene(
     '争った跡がある。床には何かが散乱している。',
     [{ label: '入り口に戻る', onClick: startEpisode3 }],
-    'img/3話オークション会場.png',
+    'img/3話現場.png',
     [
-      { label: 'ゴミ箱', x: '10%', y: '70%', w: '20%', h: '20%', onClick: inspectTrash },
-      { label: '映写機', x: '70%', y: '30%', w: '20%', h: '30%', onClick: inspectProjector },
-      { label: '受付', x: '40%', y: '40%', w: '20%', h: '20%', onClick: inspectDesk }
+      { label: 'ゴミ箱', x: '40%', y: '50%', w: '20%', h: '20%', onClick: inspectTrash },
+      { label: '映写機', x: '65%', y: '30%', w: '20%', h: '30%', onClick: inspectProjector },
+      { label: '受付', x: '15%', y: '45%', w: '20%', h: '20%', onClick: inspectDesk }
     ]
   );
 }
@@ -102,21 +106,21 @@ function inspectTrash() {
   hasPaper = true;
   addEvidence('焦げた裏取引の書類');
   yuiSay('「アーカイブ」という単語が……半分焼けてる。');
-  setScene('ゴミ箱の中に、不自然に焼かれた書類の残骸がある。', [{ label: '戻る', onClick: inspectVenue }]);
+  setScene('ゴミ箱の中に、不自然に焼かれた書類の残骸がある。', [{ label: '戻る', onClick: inspectVenue }],'img/3話ゴミ箱.png');
 }
 
 function inspectProjector() {
   hasFilm = true;
   addEvidence('50年前の8ミリフィルム');
   yuiSay('古い映像……新潟港の様子が映ってるわ。');
-  setScene('映写機にセットされていたのは、当時の港の秘密取引を記録した映像だった。', [{ label: '戻る', onClick: inspectVenue }]);
+  setScene('映写機にセットされていたのは、当時の港の秘密取引を記録した映像だった。', [{ label: '戻る', onClick: inspectVenue }],'img/3話映写機.png');
 }
 
 function inspectDesk() {
   hasAuctionList = true;
   addEvidence('出品拒否されたリスト');
   yuiSay('これ、2話の顧問教師が探していた資料と同じじゃない？');
-  setScene('受付の裏に、直前で出品が取り消された「極秘資料」のタイトルが記されていた。', [{ label: '戻る', onClick: inspectVenue }]);
+  setScene('受付の裏に、直前で出品が取り消された「極秘資料」のタイトルが記されていた。', [{ label: '戻る', onClick: inspectVenue }],'img/3話極秘資料.png');
 }
 
 conclusionBtn.onclick = () => {
