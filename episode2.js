@@ -108,11 +108,24 @@ function startEpisode2() {
   yuiSay('夜の校舎……何かが隠されている気がする。');
   setScene(
     '北越高校の校庭。雪が降り積もっている。',
+    [],
+      'img/2話校庭.png',
     [
-      { label: '校庭を調べる', onClick: inspectYard },
-      { label: '校舎内に入る', onClick: inspectInside }
+      { label: '校庭を調べる',
+        x: '0%',
+        y: '60%',
+        w: '100%',
+        h: '40%', 
+        onClick: inspectYard 
+      },
+      { label: '校舎内に入る',
+        x: '30%',
+        y: '20%',
+        w: '40%',
+        h: '20%',
+        onClick: inspectInside 
+      }
     ],
-    'img/2話校庭.png'
   );
 }
 
@@ -130,12 +143,22 @@ function inspectYard() {
 function inspectInside() {
   setScene(
     '静まり返った校舎内。どこへ向かう？',
+    [ { label: '校庭へ戻る', onClick: startEpisode2 }],
+    'img/2話校舎内.png',
     [
-      { label: '美術室へ', onClick: inspectArtRoom },
-      { label: '職員室へ', onClick: inspectSchedule },
-      { label: '校庭へ戻る', onClick: startEpisode2 }
-    ],
-    'img/2話校舎内.png'
+      { label: '美術室へ', 
+        x: '0%',
+        y: '30%',
+        w: '20%',
+        h: '40%',
+        onClick: inspectArtRoom },
+      { label: '職員室へ', 
+        x: '80%',
+        y: '30%',
+        w: '20%',
+        h: '40%',
+        onClick: inspectSchedule },
+    ]
   );
 }
 
