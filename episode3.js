@@ -2,22 +2,19 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebas
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
 import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
-// Firebase設定
-const firebaseConfig = {
+const firebaseConfig = {     
     apiKey: "AIzaSyAjSxFPJ0Ym8u4B0t1n8BQ52wFrfg8l-r8",
     authDomain: "niigata-game.firebaseapp.com",
     projectId: "niigata-game",
     storageBucket: "niigata-game.firebasestorage.app",
     messagingSenderId: "256281746306",
     appId: "1:256281746306:web:bb3823e7e8f7f769870d9b",
-    measurementId: "G-JKCRVL23K0"
-};
-
-// 初期化
+    measurementId: "G-JKCRVL23K0" };
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// DOM要素の取得
 const textEl = document.getElementById('text');
 const choicesEl = document.getElementById('choices');
 const imageEl = document.getElementById('sceneImage');
@@ -27,88 +24,48 @@ const conclusionArea = document.getElementById('conclusionArea');
 const conclusionBtn = document.getElementById('conclusionBtn');
 
 let evidence = [];
-let yardChecked = false;
-let artChecked = false;
-let scheduleChecked = false;
+let hasFilm = false;
+let hasPaper = false;
+let hasAuctionList = false;
 
-// --- ログイン監視 ---
 onAuthStateChanged(auth, (user) => {
-  if (!user) {
-    alert("セッションが切れました。再度ログインしてください。");
-    window.location.href = 'index.html';
-  } else {
-    console.log("第2話 ログイン中:", user.email);
-  }
+  if (!user) window.location.href = 'index.html';
 });
 
-// --- 進捗保存 ---
-async function saveProgressToFirebase(nextLevel) {
+async function saveProgress(nextLevel) {
   const user = auth.currentUser;
   if (user) {
-    try {
-      await setDoc(doc(db, "users", user.uid), {
-        unlockedEpisodes: nextLevel
-      }, { merge: true });
-      console.log("データベースに保存しました。解放レベル:", nextLevel);
-    } catch (e) {
-      console.error("保存エラー:", e);
-    }
+    await setDoc(doc(db, "users", user.uid), { unlockedEpisodes: nextLevel }, { merge: true });
   }
 }
 
-/* --- 共通関数 --- */
-function yuiSay(text) {
-  yuiTextEl.textContent = text;
-}
+function yuiSay(text) { yuiTextEl.textContent = text; }
 
 function addEvidence(text) {
   if (!evidence.includes(text)) {
     evidence.push(text);
-    renderEvidence();
-    checkAllEvidence(); // 証拠が揃ったか判定
-  }
-}
-
-function renderEvidence() {
-  evidenceEl.innerHTML = evidence.map(e => `・${e}`).join('<br>');
-}
-
-function checkAllEvidence() {
-  // 全ての調査ポイントが完了したらボタンを表示
-  if (yardChecked && artChecked && scheduleChecked) {
-    conclusionArea.style.display = 'block';
+    evidenceEl.innerHTML = evidence.map(e => `・${e}`).join('<br>');
+    if (hasFilm && hasPaper && hasAuctionList) conclusionArea.style.display = 'block';
   }
 }
 
 function setScene(text, choices = [], image = null, hotspots = []) {
-  conclusionArea.style.display = 'none';
-  checkAllEvidence();
-
   textEl.innerHTML = text;
   choicesEl.innerHTML = '';
   imageEl.innerHTML = '';
-  imageEl.className = '';
-
   if (image) {
     imageEl.classList.add('scene-image');
-
     const img = document.createElement('img');
     img.src = image;
     imageEl.appendChild(img);
-
     hotspots.forEach(h => {
       const btn = document.createElement('button');
       btn.className = 'hotspot';
-      btn.style.left = h.x;
-      btn.style.top = h.y;
-      btn.style.width = h.w;
-      btn.style.height = h.h;
-      btn.title = h.label;
+      Object.assign(btn.style, { left: h.x, top: h.y, width: h.w, height: h.h });
       btn.onclick = h.onClick;
       imageEl.appendChild(btn);
     });
   }
-
   choices.forEach(c => {
     const btn = document.createElement('button');
     btn.textContent = c.label;
