@@ -80,8 +80,9 @@ function checkAllEvidence() {
   }
 }
 
-function setScene(text, choices = [], image = null, hotspots = []) {
-  // 証拠が揃っているか毎回チェック
+function setScene(text, choices = [], image = null) {
+  // 結論ボタンは基本隠す(checkAllEvidenceで必要時のみ出す)
+  conclusionArea.style.display = 'none';
   checkAllEvidence();
 
   textEl.innerHTML = text;
@@ -89,30 +90,9 @@ function setScene(text, choices = [], image = null, hotspots = []) {
   imageEl.innerHTML = '';
 
   if (image) {
-    // 画像エリアを基準点にする
-    imageEl.style.position = 'relative';
-    imageEl.className = 'scene-image';
-
     const img = document.createElement('img');
     img.src = image;
-    img.style.width = '100%';
-    img.style.display = 'block';
     imageEl.appendChild(img);
-
-    // ホットスポットの描画処理
-    hotspots.forEach(h => {
-      const btn = document.createElement('button');
-      btn.className = 'hotspot';
-      // ここが重要：渡された座標とサイズをスタイルに適用
-      btn.style.position = 'absolute';
-      btn.style.left = h.x;
-      btn.style.top = h.y;
-      btn.style.width = h.w;
-      btn.style.height = h.h;
-      
-      btn.onclick = h.onClick;
-      imageEl.appendChild(btn);
-    });
   }
 
   choices.forEach(c => {
@@ -121,15 +101,6 @@ function setScene(text, choices = [], image = null, hotspots = []) {
     btn.onclick = c.onClick;
     choicesEl.appendChild(btn);
   });
-}
-
-// 調査完了の判定
-function checkAllEvidence() {
-  if (yardChecked && artChecked && scheduleChecked) {
-    conclusionArea.style.display = 'block';
-  } else {
-    conclusionArea.style.display = 'none';
-  }
 }
 
 /* --- ストーリー展開 --- */
