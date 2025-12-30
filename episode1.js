@@ -136,8 +136,15 @@ function showInn() {
         w: '40%',
         h: '24%',
         onClick: inspectRoom
+      },
+      {
+        label: '海を見る',
+        x: '20%',
+        y: '38%',
+        w: '16%',
+        h: '24%',
+        onClick: inspectVeranda
       }
-
     ]
   );
 }
@@ -147,7 +154,7 @@ function inspectRoom() {
 
   setScene(
     '施錠された客室。<br>ネックレスはどこへ消えたのか。',
-    [],
+    [{label: '戻る', onClick: showInn}],
     'img/1話客室.png',
     [
       {
@@ -169,41 +176,12 @@ function inspectFloor() {
   setScene(
     '床の隅に、乾いた白砂が集まっている。<br>' +
     'まるで、誰かがここで何かを落としたかのようだ。',
-    [],
-    'img/1話客室.png',
-    [
-      {
-        label: '戻る',
-        x: '0%',
-        y: '0%',
-        w: '100%',
-        h: '100%',
-        onClick: showInn2
-      }
-    ]
+    [{label: '戻る', onClick: inspectRoom}],
+    'img/1話砂.png'
   );
 }
 
-function showInn2() {
-  yuiSay('ここが民宿だね。部屋はあそこかな。');
 
-  setScene(
-    '新潟市・関屋浜近くの民宿。',
-    [],
-    'img/1話昼.png',
-    [
-      {
-        label: '海を見る',
-        x: '20%',
-        y: '38%',
-        w: '16%',
-        h: '24%',
-        onClick: inspectVeranda
-      }
-
-    ]
-  );
-}
 
 
 function inspectVeranda() {
@@ -214,31 +192,11 @@ function inspectVeranda() {
   setScene(
     'ベランダに出ると、強い海風が吹き抜ける。<br>' +
     '砂の流れは、室内のものと一致しない。',
-    [],
-    'img/1話ベランダ.png',
-    [
-      {
-        label: '戻る',
-        x: '0%',
-        y: '0%',
-        w: '100%',
-        h: '100%',
-        onClick: showInn3
-      }
-    ]
+    [{label: '戻る', onClick: showInn}],
+    'img/1話ベランダ.png'
   );
 }
 
-function showInn3() {
-  yuiSay('ここが民宿だね。部屋はあそこかな。');
-
-  setScene(
-    '新潟市・関屋浜近くの民宿。',
-    [],
-    'img/1話昼.png'
-  );
-  conclusionArea.style.display = 'block';
-}
 
 conclusionBtn.onclick = () => {
   yuiSay('どの証拠が決め手だった？');
@@ -299,7 +257,7 @@ function showEnding(isCorrect) {
       [
         {
           label: 'もう一度考える',
-          onClick: showInn3
+          onClick: showInn
         }
       ]
     );
