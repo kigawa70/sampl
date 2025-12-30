@@ -44,14 +44,29 @@ onAuthStateChanged(auth, (user) => {
 // --- 進捗保存 ---
 async function saveProgressToFirebase(nextLevel) {
   const user = auth.currentUser;
-  if (user) {
+if (user) {
+    const docRef = doc(db, "users", user.uid);
+    
     try {
-      await setDoc(doc(db, "users", user.uid), {
-        unlockedEpisodes: nextLevel
-      }, { merge: true });
-      console.log("データベースに保存しました。解放レベル:", nextLevel);
+      // 1. 現在の進捗を取得
+      const docSnap = await getDoc(docRef);
+      let currentUnlockedLevel = 1;
+      
+      if (docSnap.exists()) {
+        currentUnlockedLevel = docSnap.data().unlockedEpisodes || 1;
+      }
+
+      // 2. 新しいレベルが現在の進捗より高い場合のみ更新
+      if (nextLevel > currentUnlockedLevel) {
+        await setDoc(docRef, { 
+          unlockedEpisodes: nextLevel 
+        }, { merge: true });
+        console.log(`進捗をレベル ${nextLevel} に更新しました。`);
+      } else {
+        console.log(`現在の進捗 (${currentUnlockedLevel}) が維持されました。`);
+      }
     } catch (e) {
-      console.error("保存エラー:", e);
+      console.error("進捗保存エラー:", e);
     }
   }
 }

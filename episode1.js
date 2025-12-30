@@ -44,17 +44,29 @@ async function saveProgressToFirebase(nextLevel) {
   const user = auth.currentUser;
 
   if (user) {
+    const docRef = doc(db, "users", user.uid);
+    
     try {
-      // データベースの users/ユーザーID の場所にある unlockedEpisodes を更新
-      await setDoc(doc(db, "users", user.uid), {
-        unlockedEpisodes: nextLevel
-      }, { merge: true });
-      console.log("データベースに保存しました。解放レベル:", nextLevel);
+      // 1. 現在の進捗を取得
+      const docSnap = await getDoc(docRef);
+      let currentUnlockedLevel = 1;
+      
+      if (docSnap.exists()) {
+        currentUnlockedLevel = docSnap.data().unlockedEpisodes || 1;
+      }
+
+      // 2. 新しいレベルが現在の進捗より高い場合のみ更新
+      if (nextLevel > currentUnlockedLevel) {
+        await setDoc(docRef, { 
+          unlockedEpisodes: nextLevel 
+        }, { merge: true });
+        console.log(`進捗をレベル ${nextLevel} に更新しました。`);
+      } else {
+        console.log(`現在の進捗 (${currentUnlockedLevel}) が維持されました。`);
+      }
     } catch (e) {
-      console.error("保存に失敗しました:", e);
+      console.error("進捗保存エラー:", e);
     }
-  } else {
-    console.error("ログインしていないため保存できませんでした。");
   }
 }
 
@@ -66,11 +78,19 @@ function addEvidence(text) {
   if (!evidence.includes(text)) {
     evidence.push(text);
     renderEvidence();
+    checkAllEvidence(); // 証拠が揃ったか判定
   }
 }
 
 function renderEvidence() {
   evidenceEl.innerHTML = evidence.map(e => `・${e}`).join('<br>');
+}
+
+function checkAllEvidence() {
+  // 全ての調査ポイントが完了したらボタンを表示
+  if (sandChecked && kazeChecked) {
+    conclusionArea.style.display = 'block';
+  }
 }
 
 function setScene(text, choices = [], image = null, hotspots = []) {
@@ -170,6 +190,7 @@ function inspectRoom() {
 }
 
 function inspectFloor() {
+  sandChecked = true;
   addEvidence('床に残った不自然な砂');
   yuiSay('風向きと逆……これは自然じゃない。');
 
@@ -185,6 +206,7 @@ function inspectFloor() {
 
 
 function inspectVeranda() {
+  kazeChecked = true;
   addEvidence('海風と逆方向に残る砂');
 
   yuiSay('風は海から陸に吹いてる……なのに砂は逆。');
