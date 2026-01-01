@@ -5,103 +5,142 @@
   <title>ログイン - 消えたアーカイブ</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    .auth-form { max-width: 400px; margin: 50px auto; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 12px; }
-    input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 4px; border: none; color: #000; }
-    .auth-buttons { display: flex; gap: 10px; }
-    button { cursor: pointer; padding: 10px; flex: 1; border-radius: 8px; border: none; font-weight: bold; }
-    #loginBtn { background: #38bdf8; color: #fff; }
-    #registerBtn { background: #34d399; color: #fff; }
+    .auth-form { max-width: 400px; margin: 50px auto; padding: 30px; background: rgba(255,255,255,0.1); border-radius: 12px; text-align: center; }
+    .input-group { display: none; margin-top: 20px; text-align: left; }
+    input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 4px; border: none; color: #000; box-sizing: border-box; }
+    .auth-buttons { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
+    button { cursor: pointer; padding: 12px; border-radius: 8px; border: none; font-weight: bold; font-size: 1rem; transition: 0.3s; }
+    
+    /* ボタン色 */
+    .primary-btn { background: #38bdf8; color: #fff; width: 100%; }
+    .secondary-btn { background: #34d399; color: #fff; width: 100%; }
+    .back-btn { background: transparent; color: #94a3b8; border: 1px solid #94a3b8; margin-top: 10px; font-size: 0.8rem; }
+    
+    .msg { color: #fb7185; font-size: 0.9rem; margin-top: 10px; min-height: 1.2em; }
+    .hint { color: #94a3b8; font-size: 0.8rem; margin-bottom: 5px; }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="auth-form">
-      <h2>調査員ログイン</h2>
-      <input type="text" id="email" placeholder="ユーザーID (またはメールアドレス)">
-      <input type="password" id="password" placeholder="パスワード (半角英数字)">
-      <div class="auth-buttons">
-        <button id="loginBtn">ログイン</button>
-        <button id="registerBtn">新規登録</button>
+      <h2 id="formTitle">調査員システム</h2>
+      
+      <div id="initialButtons" class="auth-buttons">
+        <button id="showLoginBtn" class="primary-btn">ログイン</button>
+        <button id="showRegisterBtn" class="secondary-btn">新規登録</button>
       </div>
-      <p id="message" style="color: #fb7185; margin-top: 15px; font-size: 0.9rem; min-height: 1.2em;"></p>
+
+      <div id="inputForm" class="input-group">
+        <label for="email">ユーザーID</label>
+        <input type="text" id="email" placeholder="ID名を入力">
+        
+        <label for="password">パスワード</label>
+        <p id="passHint" class="hint" style="display:none;">※6文字以上の半角英数字</p>
+        <input type="password" id="password" placeholder="パスワードを入力">
+        
+        <button id="submitBtn" class="primary-btn">進む</button>
+        <button id="backToTop" class="back-btn">戻る</button>
+      </div>
+
+      <div id="message" class="msg"></div>
     </div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
 
-    // Firebaseコンソールで取得した設定値をここに入れる
-const firebaseConfig = {
-    apiKey: "AIzaSyAjSxFPJ0Ym8u4B0t1n8BQ52wFrfg8l-r8",
-    authDomain: "niigata-game.firebaseapp.com",
-    projectId: "niigata-game",
-    storageBucket: "niigata-game.firebasestorage.app",
-    messagingSenderId: "256281746306",
-    appId: "1:256281746306:web:bb3823e7e8f7f769870d9b",
-    measurementId: "G-JKCRVL23K0"
-  };
+    const firebaseConfig = {
+      apiKey: "AIzaSyAjSxFPJ0Ym8u4B0t1n8BQ52wFrfg8l-r8",
+      authDomain: "niigata-game.firebaseapp.com",
+      projectId: "niigata-game",
+      storageBucket: "niigata-game.firebasestorage.app",
+      messagingSenderId: "256281746306",
+      appId: "1:256281746306:web:bb3823e7e8f7f769870d9b",
+      measurementId: "G-JKCRVL23K0"
+    };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
+    const initialButtons = document.getElementById('initialButtons');
+    const inputForm = document.getElementById('inputForm');
+    const formTitle = document.getElementById('formTitle');
+    const submitBtn = document.getElementById('submitBtn');
+    const passHint = document.getElementById('passHint');
+    const msgEl = document.getElementById('message');
+    
     const emailEl = document.getElementById('email');
     const passEl = document.getElementById('password');
-    const msgEl = document.getElementById('message');
 
-    // パスワードバリデーション（半角英数字のみ）
-    const validatePass = (pass) => /^[a-zA-Z0-9]+$/.test(pass);
+    let mode = 'login'; // 'login' or 'register'
 
-    // 入力チェック用関数
-    const validateInput = () => {
-      msgEl.textContent = ""; // メッセージをクリア
-      if (!emailEl.value || !passEl.value) {
+    // 表示切り替え関数
+    function showForm(targetMode) {
+      mode = targetMode;
+      initialButtons.style.display = 'none';
+      inputForm.style.display = 'block';
+      msgEl.textContent = "";
+
+      if (mode === 'login') {
+        formTitle.textContent = "ログイン";
+        submitBtn.textContent = "ログインする";
+        submitBtn.className = "primary-btn";
+        passHint.style.display = 'none';
+      } else {
+        formTitle.textContent = "新規登録";
+        submitBtn.textContent = "登録する";
+        submitBtn.className = "secondary-btn";
+        passHint.style.display = 'block';
+      }
+    }
+
+    // 戻るボタン
+    document.getElementById('backToTop').onclick = () => {
+      initialButtons.style.display = 'flex';
+      inputForm.style.display = 'none';
+      formTitle.textContent = "調査員システム";
+    };
+
+    document.getElementById('showLoginBtn').onclick = () => showForm('login');
+    document.getElementById('showRegisterBtn').onclick = () => showForm('register');
+
+    // IDをメール形式に補完 (@game.comを自動付与)
+    const getFormattedEmail = (val) => val.includes('@') ? val : `${val}@game.com`;
+
+    // 実行ボタン
+    submitBtn.onclick = async () => {
+      const email = getFormattedEmail(emailEl.value);
+      const password = passEl.value;
+
+      if (!emailEl.value || !password) {
         msgEl.textContent = "IDとパスワードを入力してください";
-        return false;
+        return;
       }
-      if (!validatePass(passEl.value)) {
-        msgEl.textContent = "パスワードは半角英数字のみです";
-        return false;
+
+      if (mode === 'register' && password.length < 6) {
+        msgEl.textContent = "パスワードは6文字以上にしてください";
+        return;
       }
-      return true;
-    };
 
-    // IDをメール形式に補完する関数
-    const getFormattedEmail = (val) => {
-      return val.includes('@') ? val : `${val}@game.com`;
-    };
-
-    // 新規登録
-    document.getElementById('registerBtn').onclick = async () => {
-      if (!validateInput()) return;
-
-      const email = getFormattedEmail(emailEl.value);
       try {
-        await createUserWithEmailAndPassword(auth, email, passEl.value);
-        location.href = 'select.html';
-      } catch (e) {
-        if (e.code === 'auth/email-already-in-use') {
-          msgEl.textContent = "このIDは既に使用されています";
+        if (mode === 'login') {
+          await signInWithEmailAndPassword(auth, email, password);
         } else {
-          msgEl.textContent = "登録エラー: " + e.message;
+          await createUserWithEmailAndPassword(auth, email, password);
         }
-      }
-    };
-
-    // ログイン
-    document.getElementById('loginBtn').onclick = async () => {
-      if (!validateInput()) return;
-
-      const email = getFormattedEmail(emailEl.value);
-      try {
-        // Firebaseの認証が終わるまで待機
-        await signInWithEmailAndPassword(auth, email, passEl.value);
-        // 成功した場合のみ移動
         location.href = 'select.html';
       } catch (e) {
-        // 失敗した場合はここで止まり、エラーを表示
-        msgEl.textContent = "IDまたはパスワードが正しくありません";
-        console.error("Login Error:", e.code);
+        console.error(e);
+        if (e.code === 'auth/user-not-found' || e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') {
+          msgEl.textContent = "IDまたはパスワードが正しくありません";
+        } else if (e.code === 'auth/email-already-in-use') {
+          msgEl.textContent = "このIDは既に使用されています";
+        } else if (e.code === 'auth/weak-password') {
+          msgEl.textContent = "パスワードが短すぎます(6文字以上必要)";
+        } else {
+          msgEl.textContent = "エラーが発生しました";
+        }
       }
     };
   </script>
