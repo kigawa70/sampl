@@ -36,7 +36,7 @@ onAuthStateChanged(auth, (user) => {
     alert("セッションが切れました。再度ログインしてください。");
     window.location.href = 'index.html';
   } else {
-    console.log("第2話 ログイン中:", user.email);
+    console.log("第1話 ログイン中:", user.email);
   }
 });
 
