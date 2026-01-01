@@ -238,6 +238,8 @@ conclusionBtn.onclick = () => {
 };
 
 
+// ...前略...
+
 function showEnding(isCorrect) {
   if (isCorrect) {
     // ✅ 正解：第1話終了
@@ -247,46 +249,29 @@ function showEnding(isCorrect) {
       '床に残った砂は、自然に入り込んだものではなかった。<br>' +
       '密室は最初から成立していなかったのだ。<br><br>' +
       '女性は、事故のショックでネックレスを隠していたことを認めた。',
-      []
+      [{ label: 'タイトルへ戻る', onClick: () => { location.href = 'select.html'; } }]
     );
 
-
-    
     conclusionArea.style.display = 'none';
 
-    saveProgressToFirebase(2);
-    
-    setTimeout(() => {
-      yuiSay('この事件は、まだ序章にすぎない。');
-
-      setScene(
-        '第1話「白砂のネックレス」 完<br><br>' +
-        '彼女が新潟に来た本当の目的――<br>' +
-        'それは「失われたアーカイブ」を探すことだった。',
-        [
-          {
-            label: '話数選択へ戻る',
-            onClick: () => {
-              window.location.href = 'select.html';
-           }
-          }
-        ]
-      );
-    }, 1500);
+    // --- ここが重要：進捗を保存する ---
+    const user = auth.currentUser;
+    if (user) {
+      // ユーザーのドキュメントに「2話まで解放」を書き込む
+      setDoc(doc(db, "users", user.uid), {
+        unlockedEpisodes: 2
+      }, { merge: true })
+      .then(() => {
+        console.log("第2話が解放されました！");
+      })
+      .catch((error) => {
+        console.error("保存失敗:", error);
+      });
+    }
+    // ---------------------------------
 
   } else {
-    // ❌ 不正解：進まない
-    yuiSay('……それだけじゃ、決め手にはならないかな。');
-
-    setScene(
-      'その証拠だけでは、密室を崩すには不十分だ。',
-      [
-        {
-          label: 'もう一度考える',
-          onClick: showInn
-        }
-      ]
-    );
+    yuiSay('うーん、それは関係ない気がするわ。もう一度考えてみて。');
   }
 }
 
