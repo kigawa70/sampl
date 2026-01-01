@@ -91,7 +91,7 @@ function startEpisode4() {
     [],
     'img/4話病院.png',
     [
-      { label: '男性と話す', x: '40%', y: '30%', w: '20%', h: '40%', onClick: talkToMan }
+      { label: '男性と話す', x: '0%', y: '0%', w: '100%', h: '100%', onClick: talkToMan }
     ]
   );
 }
@@ -102,9 +102,9 @@ function talkToMan() {
     [{ label: '病室を出る', onClick: startEpisode4 }],
     'img/4話持ち物.png',
     [
-      { label: 'カバン', x: '20%', y: '60%', w: '20%', h: '20%', onClick: inspectBag },
-      { label: '古いテープレコーダー', x: '50%', y: '50%', w: '20%', h: '20%', onClick: inspectRecorder },
-      { label: '上着のポケット', x: '70%', y: '40%', w: '15%', h: '20%', onClick: inspectPocket }
+      { label: '写真', x: '60%', y: '65%', w: '20%', h: '20%', onClick: inspectBag },
+      { label: '古いテープレコーダー', x: '30%', y: '20%', w: '45%', h: '20%', onClick: inspectRecorder },
+      { label: '切符', x: '35%', y: '70%', w: '15%', h: '15%', onClick: inspectPocket }
     ]
   );
 }
