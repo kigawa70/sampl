@@ -76,8 +76,9 @@ function startFinalEpisode() {
   yuiSay('ついにここまで来たわね。信濃川河口、あの古い倉庫が全ての終着点よ。');
   setScene(
     '雪の降る港湾地区。霧の向こうに黒い影が見える。',
-    [{ label: '倉庫へ近づく', onClick: inspectWarehouse }],
-    'img/5話倉庫外観.png'
+    [],
+    'img/5話倉庫外観.png',
+    [{ label: '倉庫へ近づく',x: '0%', y: '0%', w: '100%', h: '100%', onClick: inspectWarehouse }]
   );
 }
 
@@ -87,9 +88,9 @@ function inspectWarehouse() {
     [],
     'img/5話倉庫内部.png',
     [
-      { label: '古い金庫', x: '10%', y: '60%', w: '20%', h: '30%', onClick: findKey },
-      { label: 'PC端末', x: '40%', y: '40%', w: '20%', h: '20%', onClick: findAudio },
-      { label: '倒れた机', x: '70%', y: '65%', w: '20%', h: '20%', onClick: findPendant }
+      { label: '古い金庫', x: '10%', y: '50%', w: '20%', h: '30%', onClick: findKey },
+      { label: 'PC端末', x: '80%', y: '60%', w: '20%', h: '20%', onClick: findAudio },
+      { label: '倒れた机', x: '60%', y: '55%', w: '20%', h: '20%', onClick: findPendant }
     ]
   );
 }
