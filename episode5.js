@@ -135,13 +135,13 @@ function showEnding5(type) {
     yuiSay('真実は雪の下には隠しきれない！');
     setScene(
       '【真相ルート：GOOD END】<br>アーカイブは保護され、50年前の不正が暴かれた。新潟の街に、本当の春が訪れる。',
-      [{ label: 'タイトルへ戻る', onClick: () => { window.location.href = 'index.html'; } }]
+      [{ label: 'タイトルへ戻る', onClick: () => { window.location.href = 'select.html'; } }]
     );
   } else if (type === 'BITTER') {
     yuiSay('これが犠牲を防ぐ唯一の道なの…？');
     setScene(
       '【代償ルート：BITTER END】<br>アーカイブは失われた。不正の証拠も消えたが、さらなる悲劇は防がれた。苦い勝利だ。',
-      [{ label: 'タイトルへ戻る', onClick: () => { window.location.href = 'index.html'; } }]
+      [{ label: 'タイトルへ戻る', onClick: () => { window.location.href = 'select.html'; } }]
     );
   } else {
     yuiSay('しまっ、逃げられた！？');
