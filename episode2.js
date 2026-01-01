@@ -227,16 +227,42 @@ conclusionBtn.onclick = () => {
   );
 };
 
+// ...（前略）...
+
 function showEnding2(isCorrect) {
   if (isCorrect) {
-    yuiSay('事故じゃない……計画的だった。');
+    // ✅ 正解：第2話クリア
+    yuiSay('そう……融雪装置が、皮肉にも足跡を保存していたのね。');
+
     setScene(
-      '犯人は融雪装置のタイマーを逆手に取り、アリバイを作っていた。<br>第2話 クリア！',
-      [{ label: '話数選択へ戻る', onClick: () => { window.location.href = 'select.html'; } }]
+      '「事故」として処理されそうだった事件は、あなたの推理によって「殺人」へと覆った。<br><br>' +
+      '犯人の動機は、顧問教師が探していた「ある古い資料」に関わるものだった。<br>' +
+      'そしてその資料の調査先には、なぜかあなたの名前が記されていた……。',
+      [{ label: 'タイトルへ戻る', onClick: () => { location.href = 'select.html'; } }]
     );
-    saveProgressToFirebase(3); // 第3話を解放
+
+    // 結論エリアを隠す
+    if (conclusionArea) conclusionArea.style.display = 'none';
+
+    // --- 【重要】第3話を解放する保存処理 ---
+    const user = auth.currentUser;
+    if (user) {
+      // 現在の進捗を確認し、3話より前なら「3」に更新する
+      // (既に4話まで進んでいる人が2話をやり直した時に進捗が戻らないように merge を使用)
+      setDoc(doc(db, "users", user.uid), {
+        unlockedEpisodes: 3
+      }, { merge: true })
+      .then(() => {
+        console.log("第3話が解放されました！");
+      })
+      .catch((error) => {
+        console.error("進捗保存エラー:", error);
+      });
+    }
+    // --------------------------------------
+
   } else {
-    yuiSay('それは決定的な証拠にはならないわ。');
+    yuiSay('それは少し違う気がするわ。もう一度現場の状況を思い出して。');
   }
 }
 

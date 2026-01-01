@@ -157,16 +157,35 @@ conclusionBtn.onclick = () => {
   );
 };
 
+// ...（前略）...
+
 function showEnding3(isCorrect) {
   if (isCorrect) {
-    yuiSay('その通り。50年前の記録を闇に葬ろうとしたのね。');
+    // ✅ 正解：第3話クリア
+    yuiSay('そう、その書類と映像が、消された歴史の断片だったのね。');
+
     setScene(
-      '犯人は、消えたアーカイブが公になることを恐れた権力者の代行者だった。<br>第3話 クリア！',
-      [{ label: '次へ進む', onClick: () => { window.location.href = 'select.html'; } }]
+      'オークション会場の混乱の中、あなたは真実に一歩近づいた。<br>' +
+      '50年前、新潟港で何が行われていたのか……。<br>' +
+      '「アーカイブ」は単なる記録ではなく、国家を揺るがす証拠だったのだ。',
+      [{ label: 'タイトルへ戻る', onClick: () => { location.href = 'select.html'; } }]
     );
-    saveProgress(4);
+
+    if (conclusionArea) conclusionArea.style.display = 'none';
+
+    // --- 第4話を解放する保存処理 ---
+    const user = auth.currentUser;
+    if (user) {
+      setDoc(doc(db, "users", user.uid), {
+        unlockedEpisodes: 4
+      }, { merge: true })
+      .then(() => console.log("第4話が解放されました"))
+      .catch((error) => console.error("保存失敗:", error));
+    }
+    // ----------------------------
+
   } else {
-    yuiSay('うーん、書類の内容をよく思い出して。');
+    yuiSay('うーん、まだパズルが完成していないみたい。もう一度証拠を見て。');
   }
 }
 

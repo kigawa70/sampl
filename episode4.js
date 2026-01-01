@@ -142,16 +142,35 @@ conclusionBtn.onclick = () => {
   );
 };
 
+// ...（前略）...
+
 function showEnding4(isCorrect) {
   if (isCorrect) {
-    yuiSay('そうね。彼は震災から現代まで、アーカイブを命がけで守ってきたのよ。');
+    // ✅ 正解：第4話クリア
+    yuiSay('あなたの家族と、1964年の地震……すべてが一本の線で繋がったわ。');
+
     setScene(
-      'しかし、背後に忍び寄る影が…。男性が命を狙われている理由が判明した。<br>第4話 クリア！',
-      [{ label: '最終話へ進む', onClick: () => { window.location.href = 'select.html'; } }]
+      '記憶を取り戻した男性は、震える声で真実を語り始めた。<br>' +
+      'あなたの家族が守ろうとしたのは、新潟の、そして日本の未来だった。<br>' +
+      '全ての答えは、信濃川の河口……あの古い倉庫にある。',
+      [{ label: 'タイトルへ戻る', onClick: () => { location.href = 'select.html'; } }]
     );
-    saveProgress(5);
+
+    if (conclusionArea) conclusionArea.style.display = 'none';
+
+    // --- 第5話（最終話）を解放する保存処理 ---
+    const user = auth.currentUser;
+    if (user) {
+      setDoc(doc(db, "users", user.uid), {
+        unlockedEpisodes: 5
+      }, { merge: true })
+      .then(() => console.log("最終話が解放されました"))
+      .catch((error) => console.error("保存失敗:", error));
+    }
+    // ------------------------------------
+
   } else {
-    yuiSay('彼の持っていた「写真」の意味をもう一度考えてみて。');
+    yuiSay('彼の断片的な言葉を、もう一度よく整理してみましょう。');
   }
 }
 
